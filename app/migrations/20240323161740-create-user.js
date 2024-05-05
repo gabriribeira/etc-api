@@ -12,14 +12,14 @@ module.exports = {
           type: Sequelize.INTEGER,
         },
         name: {
-          allowNull: false,
+          allowNull: true,
           type: Sequelize.STRING,
           validate: {
             len: [2, 64],
           },
         },
         username: {
-          allowNull: false,
+          allowNull: true,
           type: Sequelize.STRING,
           unique: true,
           validate: {
@@ -35,7 +35,7 @@ module.exports = {
           },
         },
         password: {
-          allowNull: false,
+          allowNull: true,
           type: Sequelize.STRING,
           validate: {
             len: [8, 512],

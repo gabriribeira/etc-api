@@ -40,11 +40,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notNull: {
-            msg: "Name is required",
-          },
           len: {
             args: [2, 64],
             msg: "Name must be between 2 and 64 characters",
@@ -53,12 +50,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       username: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
         validate: {
-          notNull: {
-            msg: "Username is required",
-          },
           isAlphanumeric: {
             msg: "Username must contain only letters and numbers",
           },
@@ -83,11 +77,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         validate: {
-          notNull: {
-            msg: "Password is required",
-          },
           len: {
             args: [8, 512],
             msg: "Password must be between 8 and 512 characters",

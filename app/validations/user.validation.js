@@ -2,11 +2,7 @@ const { body, validationResult } = require("express-validator");
 
 // Validation middleware for creating a new user
 exports.validateCreateUser = [
-  body("name").notEmpty().withMessage("Name is required"),
-  body("username").notEmpty().withMessage("Username is required"),
   body("email").isEmail().withMessage("Invalid email format"),
-  body("img_url").optional().isURL().withMessage("Invalid image URL format"),
-  body("description").optional().isLength({ max: 512 }).withMessage("Description cannot exceed 512 characters"),
 ];
 
 // Validation middleware for updating an existing user

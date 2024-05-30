@@ -1,4 +1,4 @@
-const { Household, User, List, Expense, Goal, Tag } = require("../models");
+const { Household, User, List, Expense, Goal, Tag, User_Household } = require("../models");
 const jsend = require("jsend");
 
 // Controller function to get all households
@@ -22,6 +22,28 @@ exports.getHouseholdById = async (req, res) => {
     res.status(200).json(jsend.success(household));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));
+  }
+};
+
+// Controller function to get a single household by the authenticated session id
+exports.getHouseholdAuth = async (req, res) => {
+  try {
+    const { currentHouseholdId } = req.session;
+    if (!currentHouseholdId) {
+      return res
+        .status(400)
+        .json(jsend.error("Household ID not found in session"));
+    }
+    const household = await Household.findByPk(currentHouseholdId, {
+      include: [{ model: User, as: "Users" }],
+    });
+    if (!household) {
+      return res.status(404).json(jsend.error("Household not found"));
+    }
+    res.status(200).json(jsend.success(household));
+  } catch (error) {
+    console.error("Error fetching household:", error);
+    res.status(500).json(jsend.error("Server error"));
   }
 };
 
@@ -139,3 +161,29 @@ exports.getHouseholdTags = async (req, res) => {
     res.status(500).json(jsend.error(error.message));
   }
 };
+
+exports.switchHousehold = async (req, res) => {
+  const { householdId } = req.body;
+  const userId = req.session.passport.user;
+
+  console.log("HOUSEHOLD ID: ", householdId);
+  console.log("USER ID: ", userId);
+
+  try {
+    // Correctly find the match in the User_Household table
+    const match = await User_Household.findOne({
+      where: { household_id: householdId, user_id: userId },
+    });
+
+    if (!match) {
+      return res.status(404).json(jsend.error("Match not found"));
+    }
+
+    // Update the session with the new household ID
+    req.session.currentHouseholdId = householdId;
+    res.status(200).json(jsend.success({ currentHouseholdId: householdId }));
+  } catch (error) {
+    res.status(500).json(jsend.error(error.message));
+  }
+};
+

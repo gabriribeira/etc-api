@@ -1,4 +1,4 @@
-const { Expense, User } = require("../models");
+const { Expense, User, Expense_User } = require("../models");
 const jsend = require("jsend");
 
 // Controller function to get all expenses
@@ -27,15 +27,24 @@ exports.getExpenseById = async (req, res) => {
 
 // Controller function to create a new expense
 exports.createExpense = async (req, res) => {
-  const { user_id, title, details, value, is_paid } = req.body;
+  const { user_id, title, details, value, is_paid, members } = req.body;
+  const { currentHouseholdId } = req.session;
   try {
     const newExpense = await Expense.create({
       user_id,
+      household_id: currentHouseholdId,
       title,
       details,
       value,
       is_paid,
     });
+
+    if (members) {
+      members.forEach(async (member) => {
+        await newExpense.addUser(member);
+      });
+    }
+
     res.status(201).json(jsend.success(newExpense));
   } catch (error) {
     res.status(500).json(jsend.fail(error.message));
@@ -94,7 +103,7 @@ exports.markExpenseAsPaidByUser = async (req, res) => {
   try {
     const expense = await Expense.findByPk(expenseId);
     if (!expense) {
-      return res.status(404).json(jsend.error('Expense not found'));
+      return res.status(404).json(jsend.error("Expense not found"));
     }
     await expense.addUser(userId);
     res.status(204).json(jsend.success("Expense marked as paid by the user"));

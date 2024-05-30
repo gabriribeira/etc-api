@@ -10,6 +10,7 @@ const role = require("./role.routes");
 const specification = require("./specification.routes");
 const tag = require("./tag.routes");
 const user = require("./user.routes");
+const product = require("./product.routes");
 
 const routeManager = (app) => {
   app.use("/api/auth", auth);
@@ -17,8 +18,9 @@ const routeManager = (app) => {
   app.use("/api/expenses", expense);
   app.use("/api/goals", goal);
   app.use("/api/goalrecords", goalrecord);
-  app.use("/api/household", household);
+  app.use("/api/households", household);
   app.use("/api/items", item);
+  app.use("/api/products", product);
   app.use("/api/lists", list);
   app.use("/api/roles", role);
   app.use("/api/specifications", specification);

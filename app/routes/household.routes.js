@@ -73,6 +73,22 @@ router.get("/:id", householdController.getHouseholdById);
 
 /**
  * @openapi
+ * /households/auth:
+ *   get:
+ *     summary: Retrieve a household by the authenticated session id
+ *     description: Retrieve a single household by the authenticated session id.
+ *     responses:
+ *       200:
+ *         description: The requested household.
+ *       404:
+ *         description: Household not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/auth/household", householdController.getHouseholdAuth);
+
+/**
+ * @openapi
  * /households/{id}:
  *   put:
  *     summary: Update a household
@@ -244,5 +260,29 @@ router.get("/:householdId/goals", householdController.getHouseholdGoals);
  *         description: Internal server error.
  */
 router.get("/:householdId/tags", householdController.getHouseholdTags);
+
+/**
+ * @openapi
+ * /households/switch:
+ *  post:
+ *   summary: Switch the current household
+ *   description: Switch the current household for the authenticated user.
+ *   requestBody:
+ *     required: true
+ *   content:
+ *     application/json:
+ *   schema:
+ *     $ref: '#/components/schemas/SwitchHousehold'
+ *   responses:
+ *     200:
+ *       description: The switched household.
+ *     400:
+ *       description: Invalid request body.
+ *     404:
+ *       description: Household not found.
+ *     500:
+ *       description: Internal server error.
+ */
+router.post("/switch", householdController.switchHousehold);
 
 module.exports = router;

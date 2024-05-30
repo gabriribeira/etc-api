@@ -6,6 +6,9 @@ const {
   validateUpdateList,
 } = require("../validations/list.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
+const {verifyToken}  = require("../middlewares/auth.js");
+
+router.use(verifyToken);
 
 /**
  * @openapi
@@ -36,6 +39,60 @@ router.post(
 
 /**
  * @openapi
+ * /lists/recipe:
+ *   post:
+ *     summary: Create a new list based on a recipe
+ *     description: Create a new list based on a recipe.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/List'
+ *     responses:
+ *       201:
+ *         description: The created list.
+ *       400:
+ *         description: Invalid request body.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post(
+  "/recipe",
+  validateCreateList,
+  handleValidationErrors,
+  listController.createListFromRecipe
+);
+
+/**
+ * @openapi
+ * /lists/event:
+ *   post:
+ *     summary: Create a new list based on an event
+ *     description: Create a new list based on an event.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/List'
+ *     responses:
+ *       201:
+ *         description: The created list.
+ *       400:
+ *         description: Invalid request body.
+ *       500:
+ *         description: Internal server error.
+ */
+router.post(
+  "/event",
+  validateCreateList,
+  handleValidationErrors,
+  listController.createListFromEvent
+);
+
+/**
+ * @openapi
  * /lists:
  *   get:
  *     summary: Retrieve all lists
@@ -47,6 +104,20 @@ router.post(
  *         description: Internal server error.
  */
 router.get("/", listController.getAllLists);
+
+/**
+ * @openapi
+ * /lists/household:
+ *   get:
+ *     summary: Retrieve all lists from Household
+ *     description: Retrieve all lists from a household.
+ *     responses:
+ *       200:
+ *         description: A list of all lists.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/household", listController.getAllListsFromHousehold);
 
 /**
  * @openapi

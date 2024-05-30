@@ -6,7 +6,7 @@ const {
   validateUpdateUser,
 } = require("../validations/user.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
-const verifyToken = require('../middlewares/auth');
+const {verifyToken} = require('../middlewares/auth');
 
 /**
  * @openapi
@@ -240,7 +240,7 @@ router.delete("/:id", userController.deleteUser);
  *       500:
  *         description: Internal server error.
  */
-router.get("/:userId/households", userController.getUserHouseholds);
+router.get("/households/:userId", userController.getUserHouseholds);
 
 /**
  * @openapi

@@ -1,11 +1,14 @@
 const db = require("../models");
-const User = db.User;
-const Household = db.Household;
-const Item = db.Item;
-const Expense = db.Expense;
-const Specification = db.Specification;
-const Goal = db.Goal;
-const GoalRecord = db.GoalRecord;
+const {
+  Household,
+  User,
+  User_Household,
+  Expense,
+  Goal,
+  GoalRecord,
+  Specification,
+  Item,
+} = require("../models");
 const jsend = require("jsend");
 
 // Controller function to get all users
@@ -98,11 +101,14 @@ exports.deleteUser = async (req, res) => {
 exports.getUserHouseholds = async (req, res) => {
   const { userId } = req.params;
   try {
-    const user = await User.findByPk(userId, { include: Household });
+    const user = await User_Household.findAll({
+      where: { user_id: userId },
+      include: Household,
+    });
     if (!user) {
       return res.status(404).json(jsend.error("User not found"));
     }
-    const households = user.Households;
+    const households = user.map((user) => user.Household);
     res.status(200).json(jsend.success(households));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));

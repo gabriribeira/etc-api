@@ -1,13 +1,13 @@
 "use strict";
 const { Model } = require("sequelize");
+const { User } = require("../models");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.List, {
-        foreignKey: "user_id",
-      });
+      User.hasMany(models.List, { foreignKey: "user_id", as: "CreatedLists" });
       User.hasMany(models.List, {
         foreignKey: "user_id_closed",
+        as: "ClosedLists",
       });
       User.hasMany(models.Goal_Record, {
         foreignKey: "user_id",
@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.belongsToMany(models.Household, {
         through: "User_Household",
+        as: "Households",
         foreignKey: "user_id",
       });
       User.belongsToMany(models.Specification, {
@@ -34,6 +35,20 @@ module.exports = (sequelize, DataTypes) => {
     }
     static findByEmail(email) {
       return this.findOne({ where: { email } });
+    }
+    static async getUsersByHouseholdId(householdId) {
+      try {
+        const users = await User.findAll({
+          include: {
+            model: sequelize.models.Household,
+            where: { id: householdId },
+          },
+        });
+        return users;
+      } catch (error) {
+        console.error("Error fetching users by household ID:", error.message);
+        throw error;
+      }
     }
   }
   User.init(
@@ -64,12 +79,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
         validate: {
-          notNull: {
-            msg: "Email is required",
-          },
           isEmail: {
             msg: "Invalid email format",
           },
@@ -99,6 +111,16 @@ module.exports = (sequelize, DataTypes) => {
             msg: "Description cannot exceed 512 characters",
           },
         },
+      },
+      googleId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      facebookId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
       },
       createdAt: {
         type: DataTypes.DATE,

@@ -1,59 +1,139 @@
 const express = require("express");
-const router = express.Router();
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const jsend = require("jsend");
-const { User } = require("../models");
+const { User, Household, User_Household } = require("../models");
+const passport = require("../config/passport");
+const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  try {
-    const { name, username, email, password, img_url, description } = req.body;
-    // Check if the user already exists
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      return res.status(400).json(jsend.error("User already exists"));
+async function createPrivateHousehold(user) {
+  const household = await Household.create({
+    name: `${user.name}'s Household`,
+    privacy: true,
+  });
+
+  await User_Household.create({
+    user_id: user.id,
+    household_id: household.id,
+    role_id: 2,
+  });
+
+  return household;
+}
+
+async function getOrCreatePrivateHousehold(user) {
+  const userHousehold = await User_Household.findOne({
+    where: { user_id: user.id },
+    include: {
+      model: Household,
+      where: { privacy: true },
+    },
+  });
+
+  if (!userHousehold) {
+    const household = await createPrivateHousehold(user);
+    return { household, roleId: 2 };
+  }
+
+  return { household: userHousehold.Household, roleId: userHousehold.role_id };
+}
+
+router.post(
+  "/login",
+  passport.authenticate("local", { failureRedirect: "http://localhost:3000/" }),
+  async function (req, res) {
+    const user = req.user;
+
+    if (user) {
+      const { household, roleId } = await getOrCreatePrivateHousehold(user);
+      req.session.currentHouseholdId = household.dataValues.id;
+      req.session.roleId = roleId;
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-      name: name,
-      username: username,
-      email: email,
-      password: hashedPassword,
-      img_url: img_url,
-      description: description,
+
+    res.status(200).json(user);
+  }
+);
+
+router.post("/register", (req, res, next) => {
+  const { email, password } = req.body;
+
+  bcrypt.hash(password, 10, async (err, hashedPassword) => {
+    if (err) return res.status(500).json({ message: "Error hashing password" });
+
+    try {
+      const user = await User.create({
+        email,
+        password: hashedPassword,
+      });
+
+      const household = await createPrivateHousehold(user);
+
+      req.login(user, (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Error logging in after registration" });
+        }
+        req.session.currentHouseholdId = household.id;
+        req.session.roleId = 2;
+        return res.status(201).json(user);
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Error creating user", error });
+    }
+  });
+});
+
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/lists" }),
+  async (req, res) => {
+    const user = req.user;
+
+    if (user) {
+      const { household, roleId } = await getOrCreatePrivateHousehold(user);
+      console.log("HOUSEHOLD: ", household.dataValues);
+      req.session.currentHouseholdId = household.dataValues.id;
+      req.session.roleId = roleId;
+    }
+    res.redirect("http://localhost:3000/lists");
+  }
+);
+
+router.get("/facebook", passport.authenticate("facebook"));
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/login" }),
+  async (req, res) => {
+    const user = req.user;
+
+    if (user) {
+      const { household, roleId } = await getOrCreatePrivateHousehold(user);
+      req.session.currentHouseholdId = household.dataValues.id;
+      req.session.roleId = roleId;
+    }
+    res.redirect("http://localhost:3000/lists");
+  }
+);
+
+router.get("/checkAuth", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.status(200).json({
+      authenticated: true,
+      user: req.user,
+      currentHouseholdId: req.session.currentHouseholdId || null,
+      roleId: req.session.roleId || null,
     });
-    // Generate JWT token for the newly registered user
-    const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json(jsend.error("Internal server error"));
+  } else {
+    res.status(200).json({ authenticated: false, user: null });
   }
 });
 
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    // Find the user by email
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json(jsend.error("Invalid credentials"));
-    }
-    // Check if the password is correct
-    const dehashedPassword = await bcrypt.compare(password, user.password);
-    if (!dehashedPassword) {
-      return res.status(401).json(jsend.error("Invalid credentials"));
-    }
-    // Generate JWT token for the authenticated user
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    res.json({ token });
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+router.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/");
 });
 
 module.exports = router;

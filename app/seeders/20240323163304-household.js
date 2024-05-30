@@ -11,6 +11,7 @@ module.exports = {
           img_url: "https://i.imgur.com/1.jpg",
           description:
             "Casa da Amizade é uma república de amigos que moram juntos e dividem as despesas.",
+          privacy: false,
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -19,6 +20,7 @@ module.exports = {
           img_url: "https://i.imgur.com/2.jpg",
           description:
             "Casa da Praia é uma república de amigos que moram juntos e dividem as despesas.",
+          privacy: false,
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -27,6 +29,7 @@ module.exports = {
           img_url: "https://i.imgur.com/3.jpg",
           description:
             "Casa do Sítio é uma república de amigos que moram juntos e dividem as despesas.",
+          privacy: false,
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -35,6 +38,7 @@ module.exports = {
           img_url: "https://i.imgur.com/4.jpg",
           description:
             "Casa do Sertão é uma república de amigos que moram juntos e dividem as despesas.",
+          privacy: false,
           created_at: new Date(),
           updated_at: new Date(),
         },

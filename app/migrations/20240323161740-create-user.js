@@ -27,12 +27,9 @@ module.exports = {
           },
         },
         email: {
-          allowNull: false,
+          allowNull: true,
           type: Sequelize.STRING,
           unique: true,
-          validate: {
-            isEmail: true,
-          },
         },
         password: {
           allowNull: true,
@@ -51,6 +48,14 @@ module.exports = {
           validate: {
             len: [0, 512],
           },
+        },
+        googleId: {
+          allowNull: true,
+          type: Sequelize.STRING,
+        },
+        facebookId: {
+          allowNull: true,
+          type: Sequelize.STRING,
         },
         created_at: {
           type: Sequelize.DATE,

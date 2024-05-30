@@ -15,7 +15,7 @@ module.exports = {
         references: { model: 'lists', key: 'id' }
       },
       category_id: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.INTEGER,
         references: { model: 'categories', key: 'id' }
       },
@@ -25,11 +25,11 @@ module.exports = {
       },
       value: {
         allowNull: true,
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       amount: {
         allowNull: true,
-        type: Sequelize.DECIMAL
+        type: Sequelize.STRING
       },
       unit: {
         allowNull: true,

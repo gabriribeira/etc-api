@@ -14,6 +14,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: 'users', key: 'id' }
       },
+      household_id: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: { model: 'households', key: 'id' }
+      },
       title: {
         allowNull: false,
         type: Sequelize.STRING
@@ -25,6 +30,10 @@ module.exports = {
       value: {
         allowNull: false,
         type: Sequelize.INTEGER
+      },
+      date: {
+        allowNull: false,
+        type: Sequelize.DATE
       },
       is_paid: {
         allowNull: false,

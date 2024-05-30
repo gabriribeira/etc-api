@@ -6,6 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       Expense.belongsTo(models.User, {
         foreignKey: 'user_id'
       });
+      Expense.belongsTo(models.Household, {
+        foreignKey: 'household_id'
+      });
       Expense.belongsToMany(models.User, {
         through: 'Expense_User',
         foreignKey: 'expense_id'
@@ -41,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Value must be greater than or equal to 0'
         }
       }
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
     },
     is_paid: {
       type: DataTypes.BOOLEAN,

@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
   class Item extends Model {
     static associate(models) {
       Item.belongsTo(models.List, {
-        foreignKey: 'list_id'
+        foreignKey: 'list_id',
+        as: 'list'
       });
       Item.belongsTo(models.Category, {
         foreignKey: 'category_id'
@@ -25,8 +26,15 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
-    value: DataTypes.DECIMAL,
-    amount: DataTypes.DECIMAL,
+    list_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'lists',
+        key: 'id'
+      }
+    },
+    value: DataTypes.STRING,
+    amount: DataTypes.STRING,
     unit: DataTypes.STRING,
     details: DataTypes.STRING,
     brand: DataTypes.STRING,

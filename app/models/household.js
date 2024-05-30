@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       });
       Household.belongsToMany(models.User, {
         through: "User_Household",
+        as: 'Users',
         foreignKey: "household_id",
       });
     }
@@ -41,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
             msg: "Description cannot exceed 512 characters",
           },
         },
+      },
+      privacy: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false,
       },
       createdAt: {
         type: DataTypes.DATE,

@@ -4,18 +4,35 @@ const jsend = require("jsend");
 // Controller function to get all expenses
 exports.getAllExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.findAll();
+    const expenses = await Expense.findAll({
+      include: [
+        {
+          model: User,
+          through: { attributes: ["is_paid"] },
+          as: 'users',
+        },
+      ],
+    });
     res.status(200).json(jsend.success(expenses));
   } catch (error) {
     res.status(500).json(jsend.fail(error.message));
   }
 };
 
+
 // Controller function to get a single expense by ID
 exports.getExpenseById = async (req, res) => {
   const { id } = req.params;
   try {
-    const expense = await Expense.findByPk(id);
+    const expense = await Expense.findByPk(id, {
+      include: [
+        {
+          model: User,
+          through: { attributes: [] },
+          as: 'users',
+        },
+      ],
+    });
     if (!expense) {
       return res.status(404).json(jsend.error("Expense not found"));
     }
@@ -25,15 +42,17 @@ exports.getExpenseById = async (req, res) => {
   }
 };
 
+
 // Controller function to create a new expense
 exports.createExpense = async (req, res) => {
-  const { user_id, title, details, value, is_paid, members } = req.body;
+  const { user_id, title, details, date, value, is_paid, members } = req.body;
   const { currentHouseholdId } = req.session;
   try {
     const newExpense = await Expense.create({
       user_id,
       household_id: currentHouseholdId,
       title,
+      date,
       details,
       value,
       is_paid,

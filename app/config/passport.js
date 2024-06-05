@@ -45,7 +45,7 @@ passport.use(
       clientID:
         "9802812493-2abr62op0ucli9fj5slv930vp87ierlo.apps.googleusercontent.com",
       clientSecret: "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",
-      callbackURL: "http://localhost:3001/api/auth/google/callback",
+      callbackURL: `${process.env.PLATFORM_BACKEND_URL}/auth/google/callback`,
     },
     async (token, tokenSecret, profile, done) => {
       try {
@@ -75,7 +75,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
-      callbackURL: "http://localhost:3001/api/auth/facebook/callback",
+      callbackURL: `${process.env.PLATFORM_BACKEND_URL}/auth/facebook/callback`,
       profileFields: ["id", "emails", "name"],
     },
     async (accessToken, refreshToken, profile, done) => {

@@ -38,7 +38,7 @@ async function getOrCreatePrivateHousehold(user) {
 
 router.post(
   "/login",
-  passport.authenticate("local", { failureRedirect: "http://localhost:3000/" }),
+  passport.authenticate("local", { failureRedirect: `${process.env.PLATFORM_FRONTEND_URL}`}),
   async function (req, res) {
     const user = req.user;
 
@@ -98,7 +98,7 @@ router.get(
       req.session.currentHouseholdId = household.dataValues.id;
       req.session.roleId = roleId;
     }
-    res.redirect("http://localhost:3000/lists");
+    res.redirect(`${process.env.PLATFORM_FRONTEND_URL}/lists`);
   }
 );
 
@@ -114,7 +114,7 @@ router.get(
       req.session.currentHouseholdId = household.dataValues.id;
       req.session.roleId = roleId;
     }
-    res.redirect("http://localhost:3000/lists");
+    res.redirect(`${process.env.PLATFORM_FRONTEND_URL}/lists`);
   }
 );
 

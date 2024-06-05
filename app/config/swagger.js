@@ -19,7 +19,7 @@ const options = {
         description: "Local server",
       },
       {
-        url: "https://gabrielribeira.com",
+        url: "https://etc-app.com",
         description: "Live server",
       },
     ],

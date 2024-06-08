@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "gabrielr_etc_admin",
+    "password": "0ebxQ2ZdAlCI",
+    "database": "gabrielr_etc",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "gabrielr_etc_admin",
+    "password": "0ebxQ2ZdAlCI",
+    "database": "gabrielr_etc",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "gabrielr_etc_admin",
+    "password": "0ebxQ2ZdAlCI",
+    "database": "gabrielr_etc",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}

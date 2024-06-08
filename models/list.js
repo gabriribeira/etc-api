@@ -1,7 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
 const Notification = require("../controllers/notification");
-const { emitNotificationToHousehold } = require("../../server");
 
 module.exports = (sequelize, DataTypes) => {
   class List extends Model {
@@ -90,10 +89,6 @@ module.exports = (sequelize, DataTypes) => {
                 timestamp: new Date(),
               });
               await notification.save();
-            });
-
-            emitNotification(list.household_id, {
-              message: notificationMessage,
             });
           } catch (error) {
             console.error("Error fetching household users:", error.message);

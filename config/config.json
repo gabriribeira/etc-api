@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "gabrielr_etc_admin",
-    "password": "0ebxQ2ZdAlCI",
-    "database": "gabrielr_etc",
+    "username": "root",
+    "password": "",
+    "database": "etc",
     "host": "localhost",
     "dialect": "mysql"
   },

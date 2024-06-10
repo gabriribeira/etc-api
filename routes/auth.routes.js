@@ -38,7 +38,7 @@ async function getOrCreatePrivateHousehold(user) {
 
 router.post(
   "/login",
-  passport.authenticate("local", { failureRedirect: `https://etc-app.com/login`}),
+  passport.authenticate("local", { failureRedirect: process.env.SUCCESS_REDIRECT_URL}),
   async function (req, res) {
     const user = req.user;
 
@@ -88,7 +88,7 @@ router.get(
 );
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: `https://etc-app.com` }),
+  passport.authenticate("google", { failureRedirect: process.env.FAILURE_REDIRECT_URL }),
   async (req, res) => {
     const user = req.user;
 
@@ -98,14 +98,14 @@ router.get(
       req.session.currentHouseholdId = household.dataValues.id;
       req.session.roleId = roleId;
     }
-    res.redirect(`https://etc-app.com/lists`);
+    res.redirect(process.env.SUCCESS_REDIRECT_URL);
   }
 );
 
 router.get("/facebook", passport.authenticate("facebook"));
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: `https://etc-app.com/login` }),
+  passport.authenticate("facebook", { failureRedirect: process.env.FAILURE_REDIRECT_URL }),
   async (req, res) => {
     const user = req.user;
 
@@ -114,11 +114,12 @@ router.get(
       req.session.currentHouseholdId = household.dataValues.id;
       req.session.roleId = roleId;
     }
-    res.redirect(`https://etc-app.com/lists`);
+    res.redirect(process.env.SUCCESS_REDIRECT_URL);
   }
 );
 
 router.get("/checkAuth", (req, res) => {
+  console.log(req);
   if (req.isAuthenticated()) {
     res.status(200).json({
       authenticated: true,
@@ -133,7 +134,7 @@ router.get("/checkAuth", (req, res) => {
 
 router.get("/logout", (req, res) => {
   req.logout();
-  res.redirect(`https://etc-app.com/login`);
+  res.redirect(process.env.FAILURE_REDIRECT_URL);
 });
 
 module.exports = router;

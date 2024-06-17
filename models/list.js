@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
+      estimated_value: {
+        type: DataTypes.DECIMAL,
+        allowNull: true,
+      },
       is_closed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

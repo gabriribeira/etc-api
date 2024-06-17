@@ -6,7 +6,7 @@ const {
   validateUpdateList,
 } = require("../validations/list.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
-const {verifyToken}  = require("../middlewares/auth.js");
+const { verifyToken } = require("../middlewares/auth.js");
 
 router.use(verifyToken);
 
@@ -177,6 +177,81 @@ router.put(
   handleValidationErrors,
   listController.updateList
 );
+
+/**
+ * @openapi
+ *  /lists/{id}/lock:
+ *   patch:
+ *    summary: Lock a list
+ *   description: Lock an existing list.
+ *  parameters:
+ *   - in: path
+ *    name: id
+ *   required: true
+ *  schema:
+ *  type: string
+ * description: ID of the list to lock.
+ * responses:
+ * 200:
+ * description: The locked list.
+ * 400:
+ *  description: Invalid request body or ID.
+ * 404:
+ * description: List not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.patch("/:id/lock", handleValidationErrors, listController.lockList);
+
+/**
+ * @openapi
+ * /lists/{id}/unlock:
+ *  patch:
+ *   summary: Unlock a list
+ *  description: Unlock an existing list.
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the list to unlock.
+ * responses:
+ * 200:
+ * description: The unlocked list.
+ * 400:
+ * description: Invalid request body or ID.
+ * 404:
+ * description: List not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.patch("/:id/unlock", handleValidationErrors, listController.unlockList);
+
+/**
+ * @openapi
+ * /lists/{id}/estimate-value:
+ *  post:
+ *  summary: Estimate the value of a list
+ * description: Estimate the value of a list.
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the list to estimate value.
+ * responses:
+ * 200:
+ * description: The estimated value of the list.
+ * 400:
+ * description: Invalid request body or ID.
+ * 404:
+ * description: List not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/:listId/estimate-value", listController.estimateListValue);
 
 /**
  * @openapi

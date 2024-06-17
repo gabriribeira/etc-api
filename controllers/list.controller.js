@@ -259,6 +259,147 @@ exports.updateList = async (req, res) => {
   }
 };
 
+exports.lockList = async (req, res) => {
+  try {
+    const listId = req.params.id;
+    const userId = req.session.passport.user;
+    const list = await List.findByPk(listId);
+
+    if (!list) {
+      return res.status(404).json({ error: "List not found" });
+    }
+
+    list.is_closed = true;
+    list.user_id_closed = userId;
+    await list.save();
+
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.unlockList = async (req, res) => {
+  try {
+    const listId = req.params.id;
+    const userId = req.session.passport.user;
+    const list = await List.findByPk(listId);
+
+    if (!list) {
+      return res.status(404).json({ error: "List not found" });
+    }
+
+    if (list.user_id_closed !== userId) {
+      return res
+        .status(403)
+        .json({ error: "Only the user who locked the list can unlock it" });
+    }
+
+    list.is_closed = false;
+    list.user_id_closed = null;
+    await list.save();
+
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Controller function to estimate the value of a list
+// Controller function to estimate the value of a list
+exports.estimateListValue = async (req, res) => {
+  const { listId } = req.params;
+
+  try {
+    const items = await Item.findAll({ where: { list_id: listId } });
+
+    if (!items.length) {
+      return res.status(404).json(jsend.error("No items found for the list"));
+    }
+
+    let totalValue = 0;
+    const nonSuggestionItems = [];
+
+    for (const item of items) {
+      if (item.is_suggestion) {
+        totalValue += item.value * item.amount;
+      } else {
+        nonSuggestionItems.push(item);
+      }
+    }
+
+    console.log("Non-suggestion items:", nonSuggestionItems);
+
+    if (nonSuggestionItems.length > 0) {
+      const itemDescriptions = nonSuggestionItems
+        .map(
+          (item) =>
+            `${item.amount || 1} ${item.unit || 'unit'} ${item.name}`
+        )
+        .join(", ");
+      console.log("Item descriptions to be sent to OpenAI:", itemDescriptions);
+
+      const completion = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content:
+              'You are an assistant designed to estimate the portuguese market value of given shopping items. Always try to pick the cheapest products on the portuguese market. Always return the response in this JSON format: { "totalValue": Value, "items": [ { "name": "Item Name", "estimated_value": Value }, ... ] }',
+          },
+          {
+            role: "user",
+            content: `Estimate the market value of these items: ${itemDescriptions}`,
+          },
+        ],
+        model: "gpt-3.5-turbo",
+      });
+
+      console.log("OpenAI completion response:", completion);
+
+      const responseContent = completion.choices[0].message.content;
+      console.log("Response content from OpenAI:", responseContent);
+
+      // Ensure the response content is a valid JSON string
+      let estimatedItems;
+      try {
+        estimatedItems = JSON.parse(responseContent);
+      } catch (jsonError) {
+        console.error("Error parsing JSON response from OpenAI:", jsonError);
+        return res
+          .status(500)
+          .json(jsend.error("Invalid response format from OpenAI"));
+      }
+
+      console.log("Estimated items from OpenAI:", estimatedItems);
+
+      for (const estimatedItem of estimatedItems.items) {
+        const item = nonSuggestionItems.find(
+          (i) => i.name === estimatedItem.name
+        );
+        if (item) {
+          const estimatedValue = parseFloat(estimatedItem.estimated_value);
+          if (!isNaN(estimatedValue)) {
+            totalValue += estimatedValue * (item.amount || 1);
+          } else {
+            console.warn(
+              `Skipping item with non-numeric estimated value: ${estimatedItem.name}`
+            );
+          }
+        }
+      }
+    }
+
+    const list = await List.findByPk(listId);
+    list.estimated_value = totalValue;
+    await list.save();
+    
+    res.status(200).json(jsend.success({ estimatedValue: totalValue }));
+  } catch (error) {
+    console.error("Error in estimateListValue:", error);
+    res.status(500).json(jsend.error(error.message));
+  }
+};
+
 // Controller function to delete a list
 exports.deleteList = async (req, res) => {
   const { id } = req.params;

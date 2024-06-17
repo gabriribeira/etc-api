@@ -32,6 +32,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: { model: 'users', key: 'id' }
       },
+      estimated_value: {
+        allowNull: true,
+        type: Sequelize.DECIMAL
+      },
       is_closed: {
         allowNull: false,
         type: Sequelize.BOOLEAN,

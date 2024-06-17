@@ -1,4 +1,4 @@
-const { Item, User, List, Expense } = require("../models");
+const { Item, User, List, Expense, Product } = require("../models");
 const { validationResult } = require("express-validator");
 const jsend = require("jsend");
 

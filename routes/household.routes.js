@@ -107,6 +107,29 @@ router.post("/:householdId/tags", householdController.addHouseholdTags);
 
 /**
  * @openapi
+ * /households/search:
+ *  get:
+ *  summary: Search households
+ * description: Search households by name.
+ * parameters:
+ * - in: query
+ * name: name
+ * required: true
+ * schema:
+ * type: string
+ * description: Name of the household to search for.
+ * responses:
+ * 200:
+ * description: A list of households matching the search query.
+ * 500:
+ * description: Internal server error.
+ * 404:
+ * description: No households found.
+ */
+router.get("/search", householdController.searchHouseholds);
+
+/**
+ * @openapi
  * /households/{id}:
  *   get:
  *     summary: Retrieve a household by ID

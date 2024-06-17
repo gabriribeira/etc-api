@@ -9,6 +9,7 @@ const {
   Request,
   Household_Tag,
 } = require("../models");
+const { Op } = require("sequelize");
 const jsend = require("jsend");
 
 // Controller function to get all households
@@ -102,6 +103,23 @@ exports.updateHousehold = async (req, res) => {
   }
 };
 
+exports.searchHouseholds = async (req, res) => {
+  const { query } = req.query;
+
+  try {
+    const households = await Household.findAll({
+      where: {
+        name: { [Op.like]: `%${query}%` },
+        privacy: false,
+      },
+    });
+
+    res.status(200).json(households);
+  } catch (error) {
+    console.error("Error searching households:", error);
+    res.status(500).json({ message: "Error searching households", error });
+  }
+};
 exports.addHouseholdTags = async (req, res) => {
   const { householdId } = req.params;
   const { tags } = req.body;

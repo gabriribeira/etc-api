@@ -3,14 +3,15 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Household extends Model {
     static associate(models) {
-      Household.belongsToMany(models.Tag, {
-        through: "Household_Tag",
-        foreignKey: "household_id",
-      });
       Household.belongsToMany(models.User, {
         through: "User_Household",
         as: 'Users',
         foreignKey: "household_id",
+      });
+      Household.belongsToMany(models.Tag, {
+        through: "Household_Tag",
+        foreignKey: "household_id",
+        otherKey: "tag_id",
       });
     }
   }

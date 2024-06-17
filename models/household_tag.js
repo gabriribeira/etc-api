@@ -7,6 +7,20 @@ module.exports = (sequelize, DataTypes) => {
   }
   Household_Tag.init(
     {
+      household_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Household",
+          key: "id",
+        },
+      },
+      tag_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Tag",
+          key: "id",
+        },
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: true,

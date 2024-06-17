@@ -10,6 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         through: 'Household_Tag',
         foreignKey: 'tag_id'
       });
+      Tag.belongsToMany(models.Household, {
+        through: "Household_Tag",
+        foreignKey: "tag_id",
+        otherKey: "household_id",
+      });
     }
   }
   Tag.init({

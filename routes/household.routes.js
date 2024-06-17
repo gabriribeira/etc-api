@@ -36,6 +36,30 @@ router.post(
 
 /**
  * @openapi
+ * /households/addMembers:
+ *  post:
+ *   summary: Add members to a household
+ *  description: Add members to a household.
+ * requestBody:
+ *  required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/AddMembers'
+ * responses:
+ * 201:
+ * description: The added members.
+ * 400:
+ * description: Invalid request body.
+ * 404:
+ * description: Household not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/addMembers", householdController.addMembersToHousehold);
+
+/**
+ * @openapi
  * /households:
  *   get:
  *     summary: Retrieve all households
@@ -47,6 +71,39 @@ router.post(
  *         description: Internal server error.
  */
 router.get("/", householdController.getAllHouseholds);
+
+/**
+ *
+ * @openapi
+ * /households/{householdId}/tags:
+ * post:
+ * summary: Add tags to a household
+ * description: Add tags to a household.
+ * parameters:
+ * - in: path
+ *  name: householdId
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the household.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/AddTags'
+ * responses:
+ * 201:
+ * description: The added tags.
+ * 400:
+ * description: Invalid request body.
+ * 404:
+ * description: Household not found.
+ * 500:
+ * description: Internal server error.
+ *
+ */
+router.post("/:householdId/tags", householdController.addHouseholdTags);
 
 /**
  * @openapi
@@ -284,5 +341,51 @@ router.get("/:householdId/tags", householdController.getHouseholdTags);
  *       description: Internal server error.
  */
 router.post("/switch", householdController.switchHousehold);
+
+/**
+ * @openapi
+ * /households/createRequest:
+ * post:
+ * summary: Create a request
+ * description: Create a request for a household.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/CreateRequest'
+ * responses:
+ * 201:
+ * description: The created request.
+ * 400:
+ * description: Invalid request body.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/createRequest", householdController.createRequest);
+
+/**
+ * @openapi
+ * /households/updateRequestStatus:
+ * post:
+ * summary: Update a request status
+ * description: Update a request status for a household.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/UpdateRequestStatus'
+ * responses:
+ * 200:
+ * description: The updated request status.
+ * 400:
+ * description: Invalid request body.
+ * 404:
+ * description: Request not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/updateRequestStatus", householdController.updateRequestStatus);
 
 module.exports = router;

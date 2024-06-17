@@ -1,6 +1,7 @@
 const { Product, User, List, Expense } = require("../models");
 const { validationResult } = require("express-validator");
 const jsend = require("jsend");
+const { Op } = require('sequelize');
 
 // Controller function to get all products
 exports.getAllProducts = async (req, res) => {
@@ -24,6 +25,35 @@ exports.getProductById = async (req, res) => {
   } catch (error) {
     res.status(500).json(jsend.error(error.message));
   }
+};
+
+
+exports.searchProducts = async (req, res) => {
+    try {
+        const { name } = req.query;
+        if (!name) {
+            return res.status(400).json({ message: "No search term provided" });
+        }
+
+        // Use Sequelize to find products where the name matches the search term
+        const products = await Product.findAll({
+            where: {
+                name: {
+                    [Op.like]: `%${name}%`  // Use like for case-insensitive matching in MySQL
+                }
+            },
+            limit: 3  // Limit to 3 results to match the requirement
+        });
+
+        if (!products.length) {
+            return res.status(404).json({ message: "No products found" });
+        }
+
+        res.status(200).json(products);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 // Controller function to create a new product

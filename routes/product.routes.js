@@ -48,6 +48,28 @@ router.post(
  */
 router.get("/", productController.getAllProducts);
 
+
+/**
+ * @openapi
+ * /products/search:
+ *  get:
+ *   summary: Search for items
+ *  description: Search for items by name.
+ * parameters:
+ * - in: query
+ *  name: name
+ * required: true
+ * schema:
+ * type: string
+ * description: Name of the item to search for.
+ * responses:
+ * 200:
+ * description: A list of items matching the search query.
+ * 500:
+ * description: Internal server error.
+ */
+router.get("/search", productController.searchProducts);
+
 /**
  * @openapi
  * /products/{id}:

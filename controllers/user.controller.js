@@ -1,5 +1,6 @@
 const db = require("../models");
 const {
+  Sequelize,
   Household,
   User,
   User_Household,
@@ -10,6 +11,7 @@ const {
   Item,
 } = require("../models");
 const jsend = require("jsend");
+const { Op } = require("sequelize");
 
 // Controller function to get all users
 exports.getAllUsers = async (req, res) => {
@@ -58,27 +60,50 @@ exports.createUser = async (req, res) => {
   }
 };
 
+// exports.updateUser = async (req, res) => {
+//   try {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json(jsend.error(errors.message));
+//     }
+
+//     const { id } = req.params;
+//     const { name, username, email, img_url, description } = req.body;
+//     const user = await User.findByPk(id);
+//     if (!user) {
+//       return res.status(404).json(jsend.error("User not found"));
+//     }
+//     await User.update(
+//       { name, username, email, img_url, description },
+//       { where: { id } }
+//     );
+//     res.status(200).json(jsend.success("User updated successfully"));
+//   } catch (error) {
+//     res.status(400).json(jsend.error(error.message));
+//   }
+// };
+
 // Controller function to update an existing user
 exports.updateUser = async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json(jsend.error(errors.message));
-    }
+  const userId = req.session.passport.user;
+  const { username, name, img_url } = req.body;
 
-    const { id } = req.params;
-    const { name, username, email, img_url, description } = req.body;
-    const user = await User.findByPk(id);
+  try {
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json(jsend.error("User not found"));
     }
-    await User.update(
-      { name, username, email, img_url, description },
-      { where: { id } }
-    );
-    res.status(200).json(jsend.success("User updated successfully"));
+
+    if (username !== undefined && username !== null && username !== "")
+      user.username = username;
+    if (name !== undefined && name !== null && name !== "") user.name = name;
+    if (img_url !== undefined && img_url !== null) user.img_url = img_url;
+
+    await user.save();
+
+    res.status(200).json(jsend.success(user));
   } catch (error) {
-    res.status(400).json(jsend.error(error.message));
+    res.status(500).json(jsend.error(error.message));
   }
 };
 
@@ -171,5 +196,31 @@ exports.getUserGoalRecords = async (req, res) => {
     res.status(200).json(jsend.success(goalRecords));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));
+  }
+};
+
+exports.searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: "Query is required" });
+    }
+
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { name: { [Op.like]: `%${query}%` } },
+          { username: { [Op.like]: `%${query}%` } },
+        ],
+      },
+      limit: 10, // You can adjust the limit as needed
+      attributes: ["id", "name", "username", "img_url"],
+    });
+
+    res.status(200).json(jsend.success(users));
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ message: "Error searching users", error });
   }
 };

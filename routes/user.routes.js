@@ -6,7 +6,7 @@ const {
   validateUpdateUser,
 } = require("../validations/user.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
-const {verifyToken} = require('../middlewares/auth');
+const { verifyToken } = require("../middlewares/auth");
 
 /**
  * @openapi
@@ -63,6 +63,28 @@ router.post(
   handleValidationErrors,
   userController.createUser
 );
+
+/**
+ * @openapi
+ * /users/search:
+ *  get:
+ *   summary: Search users
+ *   description: Search for users by name or username.
+ *   parameters:
+ *     - in: query
+ *       name: query
+ *       required: true
+ *       schema:
+ *         type: string
+ *       description: Search query.
+ *   responses:
+ *     200:
+ *       description: A list of users matching the search query.
+ *     500:
+ *       description: Internal server error.
+ */
+router.get("/search", userController.searchUsers);
+
 
 /**
  * @openapi

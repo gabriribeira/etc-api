@@ -8,6 +8,7 @@ const {
   Goal,
   GoalRecord,
   Specification,
+  User_Specification,
   Item,
 } = require("../models");
 const jsend = require("jsend");
@@ -86,7 +87,13 @@ exports.createUser = async (req, res) => {
 // Controller function to update an existing user
 exports.updateUser = async (req, res) => {
   const userId = req.session.passport.user;
-  const { username, name, img_url } = req.body;
+  const { username, name } = req.body;
+
+  let img_url;
+
+  if (req.file) {
+    img_url = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
+  }
 
   try {
     const user = await User.findByPk(userId);
@@ -104,6 +111,36 @@ exports.updateUser = async (req, res) => {
     res.status(200).json(jsend.success(user));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));
+  }
+};
+
+// Controller function to add specifications for a user
+exports.addUserSpecifications = async (req, res) => {
+  const userId = req.session.passport.user;
+  const { specifications } = req.body;
+
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json(jsend.error("User not found"));
+    }
+
+    // Clear existing specifications
+    await User_Specification.destroy({ where: { user_id: userId } });
+
+    const promises = specifications.map((specId) => {
+      return User_Specification.create({
+        user_id: userId,
+        specification_id: specId,
+      });
+    });
+
+    await Promise.all(promises);
+
+    res.status(200).json(jsend.success({ message: "Specifications added successfully" }));
+  } catch (error) {
+    console.error("Error adding specifications:", error);
+    res.status(500).json(jsend.error("Error adding specifications"));
   }
 };
 

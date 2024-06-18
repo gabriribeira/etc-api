@@ -63,7 +63,6 @@ exports.searchProducts = async (req, res) => {
                     [Op.like]: `%${name}%`  // Use like for case-insensitive matching in MySQL
                 }
             },
-            limit: 3  // Limit to 3 results to match the requirement
         });
 
         if (!products.length) {

@@ -7,7 +7,7 @@ const {
 } = require("../validations/user.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
 const { verifyToken } = require("../middlewares/auth");
-
+const upload = require("../middlewares/upload");
 /**
  * @openapi
  * /users:
@@ -85,6 +85,42 @@ router.post(
  */
 router.get("/search", userController.searchUsers);
 
+/**
+ * @openapi
+ * /users/{userId}/specifications:
+ *  post:
+ *   summary: Add user specifications
+ *  description: Add specifications to a user.
+ * parameters:
+ *  - in: path
+ *   name: userId
+ *  required: true
+ * schema:
+ * type: string
+ * description: ID of the user.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * specifications:
+ * type: array
+ * items:
+ * type: string
+ * description: Array of specification IDs.
+ * responses:
+ * 201:
+ * description: Specifications added successfully.
+ * 400:
+ * description: Invalid request body. 
+ * 404:
+ * description: User not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/:userId/specifications", userController.addUserSpecifications);
 
 /**
  * @openapi
@@ -180,7 +216,7 @@ router.get("/:id", userController.getUserById);
  *       500:
  *         description: Internal server error.
  */
-router.put("/:id", userController.updateUser);
+router.put("/:id", upload.single('image'), userController.updateUser);
 
 /**
  * @openapi

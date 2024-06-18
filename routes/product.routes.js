@@ -48,6 +48,26 @@ router.post(
  */
 router.get("/", productController.getAllProducts);
 
+/**
+ * @openapi
+ *  /products/category/{categoryId}:
+ *  get:
+ *  summary: Retrieve products by category
+ * description: Retrieve a list of products by category.
+ * parameters:
+ * - in: path
+ * name: categoryId
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the category to retrieve products from.
+ * responses:
+ * 200:
+ * description: A list of products by category.
+ * 500:
+ * description: Internal server error.
+ */
+router.get("/category/:categoryId", productController.getProductsByCategory);
 
 /**
  * @openapi

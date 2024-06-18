@@ -27,6 +27,27 @@ exports.getProductById = async (req, res) => {
   }
 };
 
+// Controller function to get all products by category
+exports.getProductsByCategory = async (req, res) => {
+  const { categoryId } = req.params;
+
+  try {
+    const products = await Product.findAll({
+      where: {
+        category_id: categoryId,
+      },
+    });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json(jsend.error("No products found for this category"));
+    }
+
+    res.status(200).json(jsend.success(products));
+  } catch (error) {
+    console.error("Error retrieving products by category:", error);
+    res.status(500).json(jsend.error("Error retrieving products by category"));
+  }
+};
 
 exports.searchProducts = async (req, res) => {
     try {

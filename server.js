@@ -74,6 +74,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.disable("x-powered-by");
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/uploads/images", express.static(path.join(__dirname, "uploads/images")));
 
 // Serve static files from the React app located in public_html
 app.use(express.static(path.join(__dirname, "../public_html")));

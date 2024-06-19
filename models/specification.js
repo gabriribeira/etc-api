@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Specification.belongsToMany(models.User, {
         through: 'User_Specification',
-        foreignKey: 'specification_id'
+        foreignKey: 'specification_id',
+        otherKey: 'user_id'
       });
     }
   }

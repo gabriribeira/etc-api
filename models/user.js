@@ -30,8 +30,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
       });
       User.belongsToMany(models.Specification, {
-        through: "User_Specification",
-        foreignKey: "user_id",
+        through: 'User_Specification',
+        foreignKey: 'user_id',
+        otherKey: 'specification_id'
       });
     }
     static findByEmail(email) {

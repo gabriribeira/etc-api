@@ -8,6 +8,9 @@ const {
 const { handleValidationErrors } = require("../middlewares/validation.js");
 const { verifyToken } = require("../middlewares/auth");
 const upload = require("../middlewares/upload");
+
+router.put("/:id", upload.single('image'), userController.updateUser);
+
 /**
  * @openapi
  * /users:
@@ -63,6 +66,30 @@ router.post(
   handleValidationErrors,
   userController.createUser
 );
+
+/**
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     summary: Retrieve a user by ID
+ *     description: Retrieve a single user by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to retrieve.
+ *     responses:
+ *       200:
+ *         description: The requested user.
+ *       404:
+ *         description: User not found.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get("/:id", userController.getUserById);
+
 
 /**
  * @openapi
@@ -135,88 +162,6 @@ router.post("/:userId/specifications", userController.addUserSpecifications);
  *         description: Internal server error.
  */
 router.get("/", verifyToken, userController.getAllUsers);
-
-/**
- * @openapi
- * /users/{id}:
- *   get:
- *     summary: Retrieve a user by ID
- *     description: Retrieve a single user by its ID.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the user to retrieve.
- *     responses:
- *       200:
- *         description: The requested user.
- *       404:
- *         description: User not found.
- *       500:
- *         description: Internal server error.
- */
-router.get("/:id", userController.getUserById);
-
-/**
- * @openapi
- * /users/{id}:
- *   put:
- *     summary: Update a user
- *     description: Update an existing user.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *          type: string
- *         description: ID of the user to update.
- *       - in: path
- *         name: name
- *         required: true
- *         schema:
- *           type: string
- *         description: Name of the user.
- *       - in: path
- *         name: username
- *         required: true
- *         schema:
- *          type: string
- *         description: Username of the user.
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *          type: string
- *         description: Email of the user.
- *       - in: path
- *         name: img_url
- *         required: false
- *         schema:
- *          type: string
- *         description: Image URL of the user.
- *       - in: path
- *         name: description
- *         required: false
- *         schema:
- *          type: string
- *         description: Description of the user.
- *     responses:
- *       200:
- *         description: The updated user.
- *       400:
- *         description: Invalid request body or ID.
- *       404:
- *         description: User not found.
- *       500:
- *         description: Internal server error.
- */
-router.put("/:id", upload.single('image'), userController.updateUser);
 
 /**
  * @openapi

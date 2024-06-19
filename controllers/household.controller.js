@@ -84,22 +84,27 @@ exports.createHousehold = async (req, res) => {
 
 // Controller function to update an existing household
 exports.updateHousehold = async (req, res) => {
-  try {
-    // Extracting data from the request body
-    const { id } = req.params;
-    const { name, img_url, description } = req.body;
+  const { id } = req.params;
+  const { name, description } = req.body;
+  let img_url;
+  if (req.file) {
+    img_url = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
+  }
 
-    // Finding the household by its ID
+  try {
     const household = await Household.findByPk(id);
     if (!household) {
-      return res.status(404).json(jsend.error("Household not found"));
+      return res.status(404).json({ message: "Household not found" });
     }
-
-    // Updating the household
-    await household.update({ name, img_url, description });
-    res.status(201).json(jsend.success(household));
+    household.name = name;
+    household.description = description;
+    if (img_url) {
+      household.img_url = img_url;
+    }
+    await household.save();
+    res.status(200).json(household);
   } catch (error) {
-    res.status(400).json(jsend.error("Invalid input"));
+    res.status(500).json({ message: "Error updating household", error });
   }
 };
 
@@ -216,14 +221,45 @@ exports.getHouseholdGoals = async (req, res) => {
 exports.getHouseholdTags = async (req, res) => {
   const { householdId } = req.params;
   try {
-    const household = await Household.findByPk(householdId, { include: Tag });
+    const household = await Household.findByPk(householdId, {
+      include: [Tag],
+    });
     if (!household) {
-      return res.status(404).json(jsend.error("Household not found"));
+      return res.status(404).json({ message: "Household not found" });
     }
-    const tags = household.Tags;
-    res.status(200).json(jsend.success(tags));
+    res.status(200).json(jsend.success(household.Tags));
   } catch (error) {
-    res.status(500).json(jsend.error(error.message));
+    res.status(500).json({ message: "Error retrieving tags", error });
+  }
+};
+
+// Controller function to get updated a household tags
+exports.updateHouseholdTags = async (req, res) => {
+  const { householdId } = req.params;
+  const { tags } = req.body;
+
+  try {
+    const household = await Household.findByPk(householdId);
+    if (!household) {
+      return res.status(404).json({ message: "Household not found" });
+    }
+
+    await Household_Tag.destroy({
+      where: { household_id: householdId },
+    });
+
+    const tagPromises = tags.map(tagId => {
+      return Household_Tag.create({
+        household_id: householdId,
+        tag_id: tagId,
+      });
+    });
+
+    await Promise.all(tagPromises);
+
+    res.status(200).json({ message: "Tags updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating tags", error });
   }
 };
 

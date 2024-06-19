@@ -11,7 +11,9 @@ passport.serializeUser((user, done) => {
 });
 
 passport.deserializeUser((id, done) => {
-  db.User.findByPk(id)
+  db.User.findByPk(id, {
+    attributes: { exclude: ['password'] },
+  })
     .then((user) => done(null, user))
     .catch((err) => done(err));
 });

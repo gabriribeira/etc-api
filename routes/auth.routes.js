@@ -39,7 +39,7 @@ async function getOrCreatePrivateHousehold(user) {
 router.post(
   "/login",
   (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", async (err, user, info) => {
       if (err) {
         console.error("Login error:", err);
         return next(err);
@@ -56,8 +56,11 @@ router.post(
         const { household, roleId } = await getOrCreatePrivateHousehold(user);
         req.session.currentHouseholdId = household.dataValues.id;
         req.session.roleId = roleId;
+        const userData = await User.findByPk(user.id, {
+          attributes: { exclude: ['password'] },
+        });
         res.status(200).json({
-          user,
+          user: userData,
           currentHouseholdId: req.session.currentHouseholdId,
           roleId: req.session.roleId,
         });
@@ -80,7 +83,7 @@ router.post("/register", (req, res, next) => {
 
       const household = await createPrivateHousehold(user);
 
-      req.logIn(user, (err) => {
+      req.logIn(user, async (err) => {
         if (err) {
           return res
             .status(500)
@@ -88,8 +91,11 @@ router.post("/register", (req, res, next) => {
         }
         req.session.currentHouseholdId = household.id;
         req.session.roleId = 2;
+        const userData = await User.findByPk(user.id, {
+          attributes: { exclude: ['password'] },
+        });
         return res.status(201).json({
-          user,
+          user: userData,
           currentHouseholdId: req.session.currentHouseholdId,
           roleId: req.session.roleId,
         });

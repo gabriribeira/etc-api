@@ -84,13 +84,13 @@ exports.createUser = async (req, res) => {
 //   }
 // };
 
-// Controller function to update an existing user
+// user.controller.js
 exports.updateUser = async (req, res) => {
+  console.log("User update request received");
   const userId = req.session.passport.user;
-  const { username, name } = req.body;
+  const { username, name, description } = req.body;
 
   let img_url;
-
   if (req.file) {
     img_url = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
   }
@@ -98,18 +98,33 @@ exports.updateUser = async (req, res) => {
   try {
     const user = await User.findByPk(userId);
     if (!user) {
+      console.error("User not found:", userId);
       return res.status(404).json(jsend.error("User not found"));
     }
 
-    if (username !== undefined && username !== null && username !== "")
-      user.username = username;
-    if (name !== undefined && name !== null && name !== "") user.name = name;
-    if (img_url !== undefined && img_url !== null) user.img_url = img_url;
+    console.log("Updating user details:", {
+      username,
+      name,
+      description,
+      img_url
+    });
+
+    if (username !== undefined && username !== null && username !== "") { user.username = username; }
+    if (description !== undefined && description !== null && description !== "null") { user.description = description; }
+    if (name !== undefined && name !== null && name !== "") { user.name = name; }
+    if (img_url !== undefined && img_url !== null) { user.img_url = img_url; }
 
     await user.save();
 
+    console.log("User updated successfully:", user);
     res.status(200).json(jsend.success(user));
   } catch (error) {
+    console.error("Error updating user:", error);
+    if (error.errors) {
+      error.errors.forEach((err) => {
+        console.error(err.message);
+      });
+    }
     res.status(500).json(jsend.error(error.message));
   }
 };
@@ -200,14 +215,28 @@ exports.getUserExpenses = async (req, res) => {
 };
 
 // Controller function to get all specifications associated with a user
+// Controller function to get user's specifications
 exports.getUserSpecifications = async (req, res) => {
   const { userId } = req.params;
   try {
-    const specifications = await Specification.findAll({
-      where: { user_id: userId },
+    const userSpecifications = await User.findAll({
+      where: { id: userId },
+      include: [
+        {
+          model: Specification,
+          through: { attributes: [] },
+        },
+      ],
     });
+
+    if (!userSpecifications) {
+      return res.status(404).json(jsend.error("User not found"));
+    }
+
+    const specifications = userSpecifications[0].Specifications;
     res.status(200).json(jsend.success(specifications));
   } catch (error) {
+    console.error("Error retrieving user specifications:", error);
     res.status(500).json(jsend.error(error.message));
   }
 };

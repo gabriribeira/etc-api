@@ -6,6 +6,7 @@ const {
   validateUpdateHousehold,
 } = require("../validations/household.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
+const upload = require("../middlewares/upload");
 
 /**
  * @openapi
@@ -198,6 +199,7 @@ router.get("/auth/household", householdController.getHouseholdAuth);
  */
 router.put(
   "/:id",
+  upload.single("image"),
   validateUpdateHousehold,
   handleValidationErrors,
   householdController.updateHousehold
@@ -340,6 +342,37 @@ router.get("/:householdId/goals", householdController.getHouseholdGoals);
  *         description: Internal server error.
  */
 router.get("/:householdId/tags", householdController.getHouseholdTags);
+
+/**
+ * @openapi
+ * /households/{householdId}/tags:
+ * put:
+ * summary: Update tags associated with a household
+ * description: Update tags associated with a specific household.
+ * parameters:
+ * - in: path
+ * name: householdId
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the household.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/UpdateTags'
+ * responses:
+ * 200:
+ * description: The updated tags.
+ * 400:
+ * description: Invalid request body.
+ * 404:
+ * description: Household not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.put("/:householdId/tags", householdController.updateHouseholdTags);
 
 /**
  * @openapi

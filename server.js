@@ -12,6 +12,7 @@ require("./config/mongo.js");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const path = require("path");
+const cron = require('node-cron');
 
 var corsOptions = {
   origin: process.env.PLATFORM_FRONTEND_URL,
@@ -85,6 +86,14 @@ routeManager(app);
 // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../public_html", "index.html"));
+});
+
+const { finishExpiredGoals } = require('./controllers/goal.controller.js');
+
+// Schedule the cron job to run at midnight every day
+cron.schedule('0 0 * * *', async () => {
+  console.log('Running the cron job to finish expired goals');
+  await finishExpiredGoals();
 });
 
 // Port

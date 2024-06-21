@@ -114,6 +114,10 @@ module.exports = {
           details:
             "Vitamins, supplements, health foods, and products promoting well-being",
         },
+        {
+          name: "Others",
+          details: "Miscellaneous items not falling into any other category or not categorized"
+        }
       ],
       {}
     );

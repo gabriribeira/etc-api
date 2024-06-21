@@ -10,11 +10,17 @@ module.exports = (sequelize, DataTypes) => {
       List.belongsTo(models.User, {
         foreignKey: "user_id_closed",
         as: "ClosedByUser",
+        onDelete: 'CASCADE',
       });
-      List.hasMany(models.Item, { foreignKey: "list_id", as: "Items" });
+      List.hasMany(models.Item, { 
+        foreignKey: "list_id", 
+        as: "Items" ,
+        onDelete: 'CASCADE',
+      });
       List.belongsToMany(models.User, {
         through: "User_List",
         foreignKey: "list_id",
+        onDelete: 'CASCADE',
       });
     }
   }

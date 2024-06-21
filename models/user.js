@@ -3,10 +3,15 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.List, { foreignKey: "user_id", as: "CreatedLists" });
+      User.hasMany(models.List, { 
+        foreignKey: "user_id", 
+        as: "CreatedLists",
+        onDelete: "CASCADE",
+      });
       User.hasMany(models.List, {
         foreignKey: "user_id_closed",
         as: "ClosedLists",
+        onDelete: "CASCADE",
       });
       User.hasMany(models.Goal_Record, {
         foreignKey: "user_id",

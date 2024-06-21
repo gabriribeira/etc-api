@@ -17,7 +17,8 @@ module.exports = {
       list_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { model: 'lists', key: 'id' }
+        references: { model: 'lists', key: 'id' },
+        onDelete: 'CASCADE'
       },
       created_at: {
         type: Sequelize.DATE,

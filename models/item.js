@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Item.belongsTo(models.List, {
         foreignKey: 'list_id',
-        as: 'list'
+        as: 'list',
+        onDelete: 'CASCADE',
       });
       Item.belongsTo(models.Category, {
         foreignKey: 'category_id'

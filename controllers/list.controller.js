@@ -316,7 +316,25 @@ exports.unlockList = async (req, res) => {
   }
 };
 
-// Controller function to estimate the value of a list
+exports.finishList = async (req, res) => {
+  try {
+    const listId = req.params.id;
+    const list = await List.findByPk(listId);
+
+    if (!list) {
+      return res.status(404).json({ error: "List not found" });
+    }
+
+    list.is_finished = false;
+
+    await list.save();
+
+    res.json(list);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Controller function to estimate the value of a list
 exports.estimateListValue = async (req, res) => {
   const { listId } = req.params;

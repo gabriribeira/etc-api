@@ -205,6 +205,31 @@ router.patch("/:id/lock", handleValidationErrors, listController.lockList);
 
 /**
  * @openapi
+ * /lists/{id}/finish:
+ * patch:
+ * summary: Finish a list
+ * description: Finish an existing list.
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the list to finish.
+ * responses:
+ * 200:
+ * description: The finished list.
+ * 400:
+ * description: Invalid request body or ID.
+ * 404:
+ * description: List not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.patch("/:id/finish", handleValidationErrors, listController.finishList);
+
+/**
+ * @openapi
  * /lists/{id}/unlock:
  *  patch:
  *   summary: Unlock a list

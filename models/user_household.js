@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "role_id",
         as: "role",
       });
+      User_Household.belongsTo(models.User, {
+        foreignKey: "user_id",
+      });
       User_Household.belongsTo(models.Household, {
         foreignKey: "household_id",
       });

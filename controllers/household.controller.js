@@ -8,6 +8,7 @@ const {
   User_Household,
   Request,
   Household_Tag,
+  Household_Goal,
 } = require("../models");
 const { Op } = require("sequelize");
 const jsend = require("jsend");
@@ -60,11 +61,15 @@ exports.getHouseholdAuth = async (req, res) => {
 
 exports.createHousehold = async (req, res) => {
   try {
-    const { name, img_url, description } = req.body;
+    const { name, description } = req.body;
     const userId = req.session.passport.user;
+    let img_url;
+    if (req.file) {
+      img_url = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
+    }
     const household = await Household.create({
       name,
-      img_url,
+      img_url: img_url || null,
       description,
       privacy: false,
     });
@@ -139,7 +144,7 @@ exports.addHouseholdTags = async (req, res) => {
     const promises = tags.map((tag) => {
       return Household_Tag.create({
         household_id: householdId,
-        tag_id: tag.id,
+        tag_id: tag,
       });
     });
 
@@ -170,15 +175,24 @@ exports.deleteHousehold = async (req, res) => {
 // Controller function to get all users of a household
 exports.getHouseholdUsers = async (req, res) => {
   const { householdId } = req.params;
+
   try {
-    const household = await Household.findByPk(householdId, { include: User });
-    if (!household) {
-      return res.status(404).json(jsend.error("Household not found"));
+    const users = await User.findAll({
+      include: {
+        model: User_Household,
+        where: { household_id: householdId },
+      },
+      attributes: ["id", "name", "img_url"],
+    });
+
+    if (!users.length) {
+      return res.status(404).json({ message: "No users found for this household" });
     }
-    const users = household.Users;
+
     res.status(200).json(jsend.success(users));
   } catch (error) {
-    res.status(500).json(jsend.error(error.message));
+    console.error("Error fetching household users:", error);
+    res.status(500).json({ message: "Error fetching household users", error });
   }
 };
 

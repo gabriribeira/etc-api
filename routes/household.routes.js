@@ -30,6 +30,7 @@ const upload = require("../middlewares/upload");
  */
 router.post(
   "/",
+  upload.single("image"),
   validateCreateHousehold,
   handleValidationErrors,
   householdController.createHousehold

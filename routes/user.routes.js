@@ -69,6 +69,27 @@ router.post(
 
 /**
  * @openapi
+ * /users/search:
+ *  get:
+ *   summary: Search users
+ *   description: Search for users by name or username.
+ *   parameters:
+ *     - in: query
+ *       name: query
+ *       required: true
+ *       schema:
+ *         type: string
+ *       description: Search query.
+ *   responses:
+ *     200:
+ *       description: A list of users matching the search query.
+ *     500:
+ *       description: Internal server error.
+ */
+router.get("/search", userController.searchUsers);
+
+/**
+ * @openapi
  * /users/{id}:
  *   get:
  *     summary: Retrieve a user by ID
@@ -89,28 +110,6 @@ router.post(
  *         description: Internal server error.
  */
 router.get("/:id", userController.getUserById);
-
-
-/**
- * @openapi
- * /users/search:
- *  get:
- *   summary: Search users
- *   description: Search for users by name or username.
- *   parameters:
- *     - in: query
- *       name: query
- *       required: true
- *       schema:
- *         type: string
- *       description: Search query.
- *   responses:
- *     200:
- *       description: A list of users matching the search query.
- *     500:
- *       description: Internal server error.
- */
-router.get("/search", userController.searchUsers);
 
 /**
  * @openapi

@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "ClosedByUser",
       });
       List.hasMany(models.Item, { foreignKey: "list_id", as: "Items" });
+      List.belongsToMany(models.User, {
+        through: "User_List",
+        foreignKey: "list_id",
+      });
     }
   }
   List.init(
@@ -60,70 +64,70 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "List",
       tableName: "lists",
-      hooks: {
-        afterCreate: async (list, options) => {
-          try {
-            const householdId = list.household_id;
+      // hooks: {
+      //   afterCreate: async (list, options) => {
+      //     try {
+      //       const householdId = list.household_id;
 
-            const notification = {
-              message: `A new list was created in household ${householdId}`,
-              listId: list.id,
-            };
+      //       const notification = {
+      //         message: `A new list was created in household ${householdId}`,
+      //         listId: list.id,
+      //       };
 
-            emitNotificationToHousehold(householdId, notification);
-          } catch (error) {
-            console.error("Error emitting notification:", error.message);
-          }
-        },
-        afterDestroy: async (list, options) => {
-          try {
-            const userId = options.req.session.passport.user;
-            const user = await sequelize.models.User.findByPk(userId);
-            const household = await sequelize.models.Household.findByPk(
-              list.household_id
-            );
-            const users = await household.getUsers();
+      //       emitNotificationToHousehold(householdId, notification);
+      //     } catch (error) {
+      //       console.error("Error emitting notification:", error.message);
+      //     }
+      //   },
+      //   afterDestroy: async (list, options) => {
+      //     try {
+      //       // const userId = options.req.session.passport.user;
+      //       const user = await sequelize.models.User.findByPk(userId);
+      //       const household = await sequelize.models.Household.findByPk(
+      //         list.household_id
+      //       );
+      //       const users = await household.getUsers();
 
-            const notificationMessage = `${user.name} deleted the list ${list.name}`;
+      //       const notificationMessage = `${user.name} deleted the list ${list.name}`;
 
-            users.forEach(async (member) => {
-              const notification = new Notification({
-                user_id: member.id,
-                message: notificationMessage,
-                timestamp: new Date(),
-              });
-              await notification.save();
-            });
-          } catch (error) {
-            console.error("Error fetching household users:", error.message);
-          }
-        },
-        afterUpdate: async (list, options) => {
-          try {
-            const household = await sequelize.models.Household.findByPk(
-              list.household_id
-            );
-            const users = await household.getUsers();
+      //       users.forEach(async (member) => {
+      //         const notification = new Notification({
+      //           user_id: member.id,
+      //           message: notificationMessage,
+      //           timestamp: new Date(),
+      //         });
+      //         await notification.save();
+      //       });
+      //     } catch (error) {
+      //       console.error("Error fetching household users:", error.message);
+      //     }
+      //   },
+      //   afterUpdate: async (list, options) => {
+      //     try {
+      //       const household = await sequelize.models.Household.findByPk(
+      //         list.household_id
+      //       );
+      //       const users = await household.getUsers();
 
-            const notificationMessage = `List ${list.name} was updated`;
+      //       const notificationMessage = `List ${list.name} was updated`;
 
-            users.forEach(async (member) => {
-              const notification = new Notification({
-                user_id: member.id,
-                message: notificationMessage,
-                timestamp: new Date(),
-              });
-              await notification.save();
-            });
+      //       users.forEach(async (member) => {
+      //         const notification = new Notification({
+      //           user_id: member.id,
+      //           message: notificationMessage,
+      //           timestamp: new Date(),
+      //         });
+      //         await notification.save();
+      //       });
 
-            emitNotification(list.household_id, {
-              message: notificationMessage,
-            });
-          } catch (error) {
-            console.error("Error fetching household users:", error.message);
-          }
-        },
-      },
+      //       emitNotification(list.household_id, {
+      //         message: notificationMessage,
+      //       });
+      //     } catch (error) {
+      //       console.error("Error fetching household users:", error.message);
+      //     }
+      //   },
+      // },
     }
   );
   return List;

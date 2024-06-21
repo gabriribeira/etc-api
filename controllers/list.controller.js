@@ -1,4 +1,4 @@
-const { List, Item, User } = require("../models");
+const { List, Item, User, User_List } = require("../models");
 const { validationResult } = require("express-validator");
 const jsend = require("jsend");
 const OpenAI = require("openai");
@@ -76,7 +76,7 @@ exports.createList = async (req, res) => {
     const { currentHouseholdId } = req.session;
 
     // Extracting data from the request body
-    const { name, description, user_id } = req.body;
+    const { name, description, user_id, userIds } = req.body;
 
     // Creating a new list
     const newList = await List.create(
@@ -91,6 +91,17 @@ exports.createList = async (req, res) => {
         req,
       }
     );
+
+    let usersToAdd = userIds;
+
+    if (!usersToAdd) {
+      const householdUsers = await User.findAll({ where: { household_id: householdId } });
+      usersToAdd = householdUsers.map(user => user.id);
+    }
+
+    const userListPromises = usersToAdd.map(userId => User_List.create({ user_id: userId, list_id: newList.id }));
+    await Promise.all(userListPromises);
+
     res.status(201).json(newList);
   } catch (error) {
     res.status(400).json(jsend.error(error.message));
@@ -392,7 +403,7 @@ exports.estimateListValue = async (req, res) => {
     const list = await List.findByPk(listId);
     list.estimated_value = totalValue;
     await list.save();
-    
+
     res.status(200).json(jsend.success({ estimatedValue: totalValue }));
   } catch (error) {
     console.error("Error in estimateListValue:", error);

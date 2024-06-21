@@ -280,9 +280,11 @@ exports.searchUsers = async (req, res) => {
           { username: { [Op.like]: `%${query}%` } },
         ],
       },
-      limit: 10, // You can adjust the limit as needed
+      limit: 10,
       attributes: ["id", "name", "username", "img_url"],
     });
+
+    console.log("Users found:", users); // Add this line to debug
 
     res.status(200).json(jsend.success(users));
   } catch (error) {

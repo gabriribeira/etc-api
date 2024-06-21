@@ -17,11 +17,15 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      periodicity: {
+      slug: {
         allowNull: false,
         type: Sequelize.STRING
       },
-      end_date: {
+      amount: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
+      periodicity: {
         allowNull: false,
         type: Sequelize.STRING
       },
@@ -33,11 +37,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: { model: 'tags', key: 'id' }
-      },
-      household_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: { model: 'households', key: 'id' }
       },
       created_at: {
         type: Sequelize.DATE,

@@ -9,10 +9,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      tag_id: {
+      household_goal_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { model: "tags", key: "id" },
+        references: { model: "households_goals", key: "id" },
       },
       user_id: {
         allowNull: false,

@@ -6,9 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       Goal.belongsTo(models.Tag, {
         foreignKey: 'tag_id'
       });
-      Goal.belongsTo(models.Household, {
-        foreignKey: 'household_id'
+      Goal.belongsToMany(models.Household, {
+        through: "Household_Goal",
+        foreignKey: 'goal_id',
       });
+      Goal.hasMany(models.Household_Goal, { foreignKey: 'goal_id' });
     }
   }
   Goal.init({
@@ -30,6 +32,24 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'Slug is required'
+        }
+      }
+    },
+    amount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: 'Amount is required'
+        }
+      }
+    },
     periodicity: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -37,16 +57,8 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: 'Periodicity is required'
         }
-      }
-    },
-    end_date: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'End date is required'
-        }
-      }
+      },
+      defaultValue: 'monthly',
     },
     img_url: {
       type: DataTypes.STRING,

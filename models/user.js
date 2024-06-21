@@ -25,14 +25,20 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "user_id",
       });
       User.belongsToMany(models.Household, {
-        through: "User_Household",
-        as: "Households",
+        through: models.User_Household,
+        foreignKey: "user_id",
+      });
+      User.hasMany(models.User_Household, {
         foreignKey: "user_id",
       });
       User.belongsToMany(models.Specification, {
         through: 'User_Specification',
         foreignKey: 'user_id',
         otherKey: 'specification_id'
+      });
+      User.belongsToMany(models.List, {
+        through: "User_List",
+        foreignKey: "user_id",
       });
     }
     static findByEmail(email) {

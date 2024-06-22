@@ -7,9 +7,98 @@ const { Op } = require('sequelize');
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll();
-    res.status(200).json(products);
+    res.status(200).json(jsend.success(products));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));
+  }
+};
+
+exports.getProductsBySupermarket = async (req, res) => {
+  const { supermarket } = req.params;
+
+  try {
+    const products = await Product.findAll({
+      where: {
+        store: supermarket,
+      },
+    });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found for this supermarket" });
+    }
+
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error retrieving products by supermarket:", error);
+    res.status(500).json({ message: "Error retrieving products by supermarket" });
+  }
+};
+
+exports.getProductsOrderedByPrice = async (req, res) => {
+  const { order } = req.query; // should be 'asc' or 'desc'
+  console.log('order:', order)
+
+  try {
+    const products = await Product.findAll({
+      order: [['value', order.toUpperCase()]],
+    });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error retrieving products ordered by price:", error);
+    res.status(500).json({ message: "Error retrieving products ordered by price" });
+  }
+};
+
+exports.getProductsByCategory = async (req, res) => {
+  const { categoryId } = req.params;
+
+  try {
+    const products = await Product.findAll({
+      where: {
+        category_id: categoryId,
+      },
+    });
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found for this category" });
+    }
+
+    res.status(200).json({ data: products });
+  } catch (error) {
+    console.error("Error retrieving products by category:", error);
+    res.status(500).json({ message: "Error retrieving products by category" });
+  }
+};
+
+exports.getProducts = async (req, res) => {
+  try {
+    const { supermarket, order, categoryIds } = req.query;
+    const query = {};
+
+    if (supermarket) {
+      query.store = supermarket;
+    }
+    if (order) {
+      query.order = [['value', order]]; // Assuming 'value' is the price field
+    }
+    if (categoryIds) {
+      query.category_id = { [Op.in]: categoryIds.split(',') };
+    }
+
+    const products = await Product.findAll({
+      where: query,
+      order: query.order || [['id', 'ASC']],
+    });
+
+    res.status(200).json(jsend.success(products));
+  } catch (error) {
+    console.error("Error retrieving products:", error);
+    res.status(500).json(jsend.error("Error retrieving products"));
   }
 };
 
@@ -50,30 +139,30 @@ exports.getProductsByCategory = async (req, res) => {
 };
 
 exports.searchProducts = async (req, res) => {
-    try {
-        const { name } = req.query;
-        if (!name) {
-            return res.status(400).json({ message: "No search term provided" });
-        }
-
-        // Use Sequelize to find products where the name matches the search term
-        const products = await Product.findAll({
-            where: {
-                name: {
-                    [Op.like]: `%${name}%`  // Use like for case-insensitive matching in MySQL
-                }
-            },
-        });
-
-        if (!products.length) {
-            return res.status(404).json({ message: "No products found" });
-        }
-
-        res.status(200).json(products);
-    } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).json({ message: "Internal server error" });
+  try {
+    const { name } = req.query;
+    if (!name) {
+      return res.status(400).json({ message: "No search term provided" });
     }
+
+    // Use Sequelize to find products where the name matches the search term
+    const products = await Product.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`  // Use like for case-insensitive matching in MySQL
+        }
+      },
+    });
+
+    if (!products.length) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // Controller function to create a new product

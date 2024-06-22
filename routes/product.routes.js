@@ -71,6 +71,41 @@ router.get("/category/:categoryId", productController.getProductsByCategory);
 
 /**
  * @openapi
+ * /products/supermarket/{supermarket}:
+ * get:
+ * summary: Retrieve products by supermarket
+ * description: Retrieve a list of products by supermarket.
+ * parameters:
+ * - in: path
+ * name: supermarket
+ * required: true
+ * schema:
+ * type: string
+ * description: Name of the supermarket to retrieve products from.
+ * responses:
+ * 200:
+ * description: A list of products by supermarket.
+ * 500:
+ * description: Internal server error.
+ */
+router.get('/supermarket/:supermarket', productController.getProductsBySupermarket);
+
+/**
+ * @openapi
+ * /products/orderByPrice:
+ * get:
+ * summary: Retrieve products ordered by price
+ * description: Retrieve a list of products ordered by price.
+ * responses:
+ * 200:
+ * description: A list of products ordered by price.
+ * 500:
+ * description: Internal server error.
+ */
+router.get('/orderByPrice', productController.getProductsOrderedByPrice);
+
+/**
+ * @openapi
  * /products/search:
  *  get:
  *   summary: Search for items

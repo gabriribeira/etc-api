@@ -6,6 +6,7 @@ const {
   validateUpdateItem,
 } = require("../validations/item.validation.js");
 const { handleValidationErrors } = require("../middlewares/validation.js");
+const upload = require("../middlewares/upload.js");
 
 /**
  * @openapi
@@ -29,6 +30,7 @@ const { handleValidationErrors } = require("../middlewares/validation.js");
  */
 router.post(
   "/",
+  upload.single("img_url"),
   validateCreateItem,
   handleValidationErrors,
   itemController.createItem
@@ -102,6 +104,7 @@ router.get("/:id", itemController.getItemById);
  */
 router.put(
   "/:id",
+  upload.single("img_url"),
   validateUpdateItem,
   handleValidationErrors,
   itemController.updateItem

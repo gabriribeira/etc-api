@@ -34,9 +34,15 @@ exports.createItem = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    let img_url;
+    if (req.file) {
+      img_url = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
+    }
+
     // Extracting data from the request body
     const {
       list_id,
+      category_id,
       name,
       value,
       amount,
@@ -44,7 +50,6 @@ exports.createItem = async (req, res) => {
       details,
       brand,
       store,
-      img_url,
       is_suggestion,
       is_expense,
     } = req.body;
@@ -52,6 +57,7 @@ exports.createItem = async (req, res) => {
     // Creating a new item
     const newItem = await Item.create({
       list_id,
+      category_id,
       name,
       value,
       amount,
@@ -77,10 +83,16 @@ exports.updateItem = async (req, res) => {
       return res.status(400).json(jsend.error(errors.message));
     }
 
+    let img_urlParam;
+    if (req.file) {
+      img_urlParam = `${process.env.PLATFORM_BACKEND_URL}/uploads/images/${req.file.filename}`;
+    }
+
     // Extracting data from the request body
     const { id } = req.params;
     const {
       list_id,
+      category_id,
       name,
       value,
       amount,
@@ -102,6 +114,7 @@ exports.updateItem = async (req, res) => {
     // Updating the item
     await item.update({
       list_id,
+      category_id,
       name,
       value,
       amount,
@@ -109,7 +122,7 @@ exports.updateItem = async (req, res) => {
       details,
       brand,
       store,
-      img_url,
+      img_url: img_urlParam || img_url,
       is_suggestion,
       is_expense,
     });

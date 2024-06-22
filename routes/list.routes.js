@@ -305,6 +305,31 @@ router.post("/:listId/estimate-value", listController.estimateListValue);
 
 /**
  * @openapi
+ * /lists/{id}/check-food-restrictions:
+ *  post:
+ *  summary: Check food restrictions of a list
+ * description: Check food restrictions of a list.
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: ID of the list to check food restrictions.
+ * responses:
+ * 200:
+ * description: The estimated value of the list.
+ * 400:
+ * description: Invalid request body or ID.
+ * 404:
+ * description: List not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/:listId/check-food-restrictions", listController.checkFoodRestrictions);
+
+/**
+ * @openapi
  * /lists/{id}:
  *   delete:
  *     summary: Delete a list

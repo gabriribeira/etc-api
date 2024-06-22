@@ -193,7 +193,6 @@ router.get("/", verifyToken, userController.getAllUsers);
  */
 router.put(
   "/:id",
-  validateUpdateUser,
   handleValidationErrors,
   userController.updateUser
 );

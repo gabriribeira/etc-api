@@ -161,13 +161,13 @@ exports.addUserSpecifications = async (req, res) => {
 
 // Controller function to delete a user
 exports.deleteUser = async (req, res) => {
-  const { id } = req.params;
+  const userId = req.session.passport.user;
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json(jsend.error("User not found"));
     }
-    await User.destroy({ where: { id } });
+    await User.destroy({ where: { id: userId } });
     res.status(204).json(jsend.success("User deleted successfully"));
   } catch (error) {
     res.status(500).json(jsend.error(error.message));

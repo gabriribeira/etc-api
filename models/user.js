@@ -15,35 +15,42 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.hasMany(models.Goal_Record, {
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
       User.hasMany(models.Expense, {
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
       User.belongsToMany(models.Expense, {
         through: 'Expense_User',
         as: 'expenses',
         foreignKey: 'user_id',
+        onDelete: "CASCADE",
       });
-      
       User.belongsToMany(models.Item, {
         through: "Item_User",
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
       User.belongsToMany(models.Household, {
         through: models.User_Household,
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
       User.hasMany(models.User_Household, {
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
       User.belongsToMany(models.Specification, {
         through: 'User_Specification',
         foreignKey: 'user_id',
-        otherKey: 'specification_id'
+        otherKey: 'specification_id',
+        onDelete: "CASCADE",
       });
       User.belongsToMany(models.List, {
         through: "User_List",
         foreignKey: "user_id",
+        onDelete: "CASCADE",
       });
     }
     static findByEmail(email) {

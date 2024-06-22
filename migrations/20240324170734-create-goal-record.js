@@ -18,6 +18,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: { model: "users", key: "id" },
+        onDelete: "CASCADE",
       },
       increment_value: {
         allowNull: true,

@@ -37,6 +37,11 @@ module.exports = {
         allowNull: true,
         type: Sequelize.DECIMAL
       },
+      specifications: {
+        allowNull: true,
+        type: Sequelize.JSON,
+        defaultValue: null
+      },
       is_closed: {
         allowNull: false,
         type: Sequelize.BOOLEAN,

@@ -1,4 +1,4 @@
-const { List, Item, User, User_List } = require("../models");
+const { List, Item, User, User_List, User_Household, Specification, User_Specification } = require("../models");
 const { validationResult } = require("express-validator");
 const jsend = require("jsend");
 const OpenAI = require("openai");
@@ -441,6 +441,94 @@ exports.estimateListValue = async (req, res) => {
     res.status(200).json(jsend.success({ estimatedValue: totalValue }));
   } catch (error) {
     console.error("Error in estimateListValue:", error);
+    res.status(500).json(jsend.error(error.message));
+  }
+};
+
+exports.checkFoodRestrictions = async (req, res) => {
+  const { listId } = req.params;
+
+  try {
+    const items = await Item.findAll({ where: { list_id: listId } });
+
+    if (!items.length) {
+      return res.status(404).json(jsend.error("No items found for the list"));
+    }
+
+    // Get the list's users
+    const list = await List.findByPk(listId, {
+      include: [
+        {
+          model: User,
+          through: { attributes: [] }, // Exclude the join table attributes
+        },
+      ],
+    });
+
+    const users = list.Users;
+    const userIds = users.map((user) => user.id);
+
+    // Check if any user has food restrictions
+    const userSpecifications = await User_Specification.findAll({
+      where: { user_id: userIds },
+      include: [
+        {
+          model: Specification,
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    const restrictions = userSpecifications
+      .map((userSpec) => userSpec.Specification.name)
+      .filter(Boolean); // Filter out any null or undefined values
+
+    if (restrictions.length === 0) {
+      list.specifications = [];
+      await list.save();
+      return res.status(200).json(jsend.success({ harmfulItems: [] }));
+    }
+
+    // Prepare the ChatGPT query
+    const itemDescriptions = items
+      .map((item) => `${item.amount || 1} ${item.unit || 'unit'} ${item.name}`)
+      .join(", ");
+
+    const restrictionText = restrictions.join(", ");
+    const chatGPTQuery = `Check if any of the following items contain or could potentially contain any of these substances: ${restrictionText}. Items: ${itemDescriptions}`;
+
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content:
+            'You are an assistant designed to check if any given shopping items could potentially be harmful based on food restrictions. Always return the response in this JSON format: { "harmfulItems": [ { "name": "Item Name", "reason": "Reason for being harmful" } ] }',
+        },
+        {
+          role: "user",
+          content: chatGPTQuery,
+        },
+      ],
+      model: "gpt-3.5-turbo",
+    });
+
+    const responseContent = completion.choices[0].message.content;
+
+    // Ensure the response content is a valid JSON string
+    let harmfulItems;
+    try {
+      harmfulItems = JSON.parse(responseContent).harmfulItems;
+    } catch (jsonError) {
+      console.error("Error parsing JSON response from OpenAI:", jsonError);
+      return res.status(500).json(jsend.error("Invalid response format from OpenAI"));
+    }
+
+    list.specifications = harmfulItems;
+    await list.save();
+
+    res.status(200).json(jsend.success({ harmfulItems }));
+  } catch (error) {
+    console.error("Error in checkListForHarmfulItems:", error);
     res.status(500).json(jsend.error(error.message));
   }
 };

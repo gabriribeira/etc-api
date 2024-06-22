@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DECIMAL,
         allowNull: true,
       },
+      specifications: {
+        type: DataTypes.JSON,
+        allowNull: true,
+        defaultValue: null,
+      },
       is_closed: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

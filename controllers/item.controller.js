@@ -57,7 +57,7 @@ exports.createItem = async (req, res) => {
     // Creating a new item
     const newItem = await Item.create({
       list_id,
-      category_id,
+      category_id: category_id,
       name,
       value,
       amount,
@@ -114,7 +114,7 @@ exports.updateItem = async (req, res) => {
     // Updating the item
     await item.update({
       list_id,
-      category_id,
+      category_id: category_id || 0,
       name,
       value,
       amount,

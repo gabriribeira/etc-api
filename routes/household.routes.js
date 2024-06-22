@@ -62,6 +62,21 @@ router.post("/addMembers", householdController.addMembersToHousehold);
 
 /**
  * @openapi
+ * /households/requests:
+ * get:
+ * summary: Get requests for the current household
+ * description: Get requests for the current household.
+ * 
+ * responses:
+ * 200:
+ * description: A list of requests.
+ * 500:
+ * description: Internal server error.
+ */
+router.get("/requests", householdController.getRequestsForUser);
+
+/**
+ * @openapi
  * /households:
  *   get:
  *     summary: Retrieve all households

@@ -330,6 +330,55 @@ exports.addMembersToHousehold = async (req, res) => {
   }
 };
 
+exports.getRequestsForUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming req.user contains the authenticated user
+
+    // Find requests where the user is invited
+    const invitedRequests = await Request.findAll({
+      where: {
+        user_id: userId,
+        type: 'invite',
+        status: 'pending'
+      },
+      include: [
+        { model: User, as: 'user' },
+        { model: Household, as: 'household' },
+      ],
+    });
+
+    // Find households where the user is an administrator
+    const adminHouseholds = await User_Household.findAll({
+      where: {
+        user_id: userId,
+        role_id: 1 // Assuming role_id 1 means administrator
+      },
+    });
+
+    const adminHouseholdIds = adminHouseholds.map(h => h.household_id);
+
+    // Find requests where the user is an admin and the type is join
+    const adminRequests = await Request.findAll({
+      where: {
+        household_id: adminHouseholdIds,
+        type: 'join',
+        status: 'pending'
+      },
+      include: [
+        { model: User, as: 'user' },
+        { model: Household, as: 'household' },
+      ],
+    });
+
+    const allRequests = [...invitedRequests, ...adminRequests];
+
+    res.status(200).json(jsend.success(allRequests));
+  } catch (error) {
+    console.error("Error fetching requests:", error);
+    res.status(500).json({ message: "Error fetching requests" });
+  }
+};
+
 exports.createRequest = async (req, res) => {
   try {
     const { householdId, userId, type } = req.body;

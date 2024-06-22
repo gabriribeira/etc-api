@@ -86,7 +86,6 @@ exports.createUser = async (req, res) => {
 
 // user.controller.js
 exports.updateUser = async (req, res) => {
-  console.log("User update request received");
   const userId = req.session.passport.user;
   const { username, name, description } = req.body;
 
@@ -102,13 +101,6 @@ exports.updateUser = async (req, res) => {
       return res.status(404).json(jsend.error("User not found"));
     }
 
-    console.log("Updating user details:", {
-      username,
-      name,
-      description,
-      img_url
-    });
-
     if (username !== undefined && username !== null && username !== "") { user.username = username; }
     if (description !== undefined && description !== null && description !== "null") { user.description = description; }
     if (name !== undefined && name !== null && name !== "") { user.name = name; }
@@ -116,7 +108,6 @@ exports.updateUser = async (req, res) => {
 
     await user.save();
 
-    console.log("User updated successfully:", user);
     res.status(200).json(jsend.success(user));
   } catch (error) {
     console.error("Error updating user:", error);
@@ -129,6 +120,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+// Controller function to add specifications for a user
 // Controller function to add specifications for a user
 exports.addUserSpecifications = async (req, res) => {
   const userId = req.session.passport.user;
@@ -143,14 +135,17 @@ exports.addUserSpecifications = async (req, res) => {
     // Clear existing specifications
     await User_Specification.destroy({ where: { user_id: userId } });
 
-    const promises = specifications.map((specId) => {
-      return User_Specification.create({
-        user_id: userId,
-        specification_id: specId,
+    // Add new specifications
+    if (Array.isArray(specifications)) {
+      const promises = specifications.map((specId) => {
+        return User_Specification.create({
+          user_id: userId,
+          specification_id: specId,
+        });
       });
-    });
 
-    await Promise.all(promises);
+      await Promise.all(promises);
+    }
 
     res.status(200).json(jsend.success({ message: "Specifications added successfully" }));
   } catch (error) {

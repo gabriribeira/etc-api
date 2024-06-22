@@ -228,7 +228,6 @@ exports.createListFromEvent = async (req, res) => {
   }
 };
 
-// Controller function to update an existing list
 exports.updateList = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -241,11 +240,6 @@ exports.updateList = async (req, res) => {
     const {
       name,
       description,
-      user_id,
-      household_id,
-      user_id_closed,
-      is_closed,
-      is_finished,
     } = req.body;
 
     // Finding the list by its ID
@@ -258,13 +252,8 @@ exports.updateList = async (req, res) => {
     await list.update({
       name,
       description,
-      user_id,
-      household_id,
-      user_id_closed,
-      is_closed,
-      is_finished,
     });
-    res.status(200).json(list);
+    res.status(200).json(jsend.success(list));
   } catch (error) {
     res.status(400).json(jsend.error(error.message));
   }
@@ -319,17 +308,44 @@ exports.unlockList = async (req, res) => {
 exports.finishList = async (req, res) => {
   try {
     const listId = req.params.id;
-    const list = await List.findByPk(listId);
+    const list = await List.findOne(
+      { where: { id: listId, is_finished: false } }
+    );
+
+    if (!list) {
+      return res.status(404).json({ error: "List not found" });
+    }
+
+    list.is_finished = true;
+    await list.save();
+
+    res.status(200).json(jsend.success(list));
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.unfinishList = async (req, res) => {
+  try {
+    const userId = req.session.passport.user;
+    const listId = req.params.id;
+    const list = await List.findOne(
+      { where: { id: listId, is_finished: true } }
+    );
 
     if (!list) {
       return res.status(404).json({ error: "List not found" });
     }
 
     list.is_finished = false;
+    list.estimated_value = null;
+    list.user_id_closed = null;
+    list.is_closed = false;
+    list.user_id = userId;
 
     await list.save();
 
-    res.json(list);
+    res.status(200).json(jsend.success(list));
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

@@ -156,8 +156,10 @@ router.get("/checkAuth", (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect(process.env.FAILURE_REDIRECT_URL);
+  req.session.destroy(() => {
+    res.clearCookie("connect.sid");
+    res.status(200).json({ message: "Logged out" });
+  });
 });
 
 module.exports = router;

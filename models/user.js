@@ -3,8 +3,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      User.hasMany(models.List, { 
-        foreignKey: "user_id", 
+      User.hasMany(models.List, {
+        foreignKey: "user_id",
         as: "CreatedLists",
         onDelete: "CASCADE",
       });
@@ -19,11 +19,12 @@ module.exports = (sequelize, DataTypes) => {
       });
       User.hasMany(models.Expense, {
         foreignKey: "user_id",
+        as: "CreatedExpenses",
         onDelete: "CASCADE",
       });
       User.belongsToMany(models.Expense, {
         through: 'Expense_User',
-        as: 'expenses',
+        as: 'SharedExpenses',
         foreignKey: 'user_id',
         onDelete: "CASCADE",
       });

@@ -1,18 +1,36 @@
 const { Expense, User, Expense_User } = require("../models");
 const jsend = require("jsend");
+const { Op } = require("sequelize");
 
 // Controller function to get all expenses
 exports.getAllExpenses = async (req, res) => {
   try {
+    const userId = req.user.id; // Assuming the authenticated user's ID is available in req.user.id
+
     const expenses = await Expense.findAll({
+      where: {
+        is_paid: false,
+        [Op.or]: [
+          { user_id: userId },
+          {
+            '$users.id$': userId
+          }
+        ]
+      },
       include: [
         {
           model: User,
-          through: { attributes: ["is_paid"] },
           as: 'users',
+          through: { attributes: ["is_paid"] },
+        },
+        {
+          model: User,
+          as: 'payer',
+          attributes: ['id', 'name', 'img_url'], // Include the necessary user attributes
         },
       ],
     });
+
     res.status(200).json(jsend.success(expenses));
   } catch (error) {
     res.status(500).json(jsend.fail(error.message));
@@ -171,7 +189,8 @@ exports.markWholeExpenseAsPaid = async (req, res) => {
 
 // Controller function to mark an expense as paid by a specific user
 exports.markExpenseAsPaidByUser = async (req, res) => {
-  const { expenseId, userId } = req.body;
+  const userId = req.session.passport.user;
+  const { expenseId } = req.body;
 
   try {
     const expense = await Expense.findByPk(expenseId, {

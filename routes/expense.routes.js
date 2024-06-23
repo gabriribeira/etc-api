@@ -216,7 +216,7 @@ router.get("/:expenseId/users", expenseController.getExpenseUsers);
 
 /**
  * @openapi
- * /expenses/{expenseId}/users/{userId}:
+ * /expenses/mark-paid:
  *   post:
  *     summary: Mark an expense as paid by a user
  *     description: Mark a specific expense as paid by a user.
@@ -241,10 +241,30 @@ router.get("/:expenseId/users", expenseController.getExpenseUsers);
  *       500:
  *         description: Internal server error.
  */
-router.post(
-  "/:expenseId/users/:userId",
-  expenseController.markExpenseAsPaidByUser
-);
+router.post("/mark-paid", expenseController.markExpenseAsPaidByUser);
+
+/**
+ * @openapi
+ * /expenses/mark-whole-paid:
+ *  post:
+ *   summary: Mark the whole expense as paid
+ *  description: Mark the whole expense as paid by the payer.
+ * parameters:
+ *  - in: path
+ *   name: expenseId
+ *  required: true
+ * schema:
+ * type: string
+ * description: ID of the expense.
+ * responses:
+ * 200:
+ * description: Expense marked as paid successfully.
+ * 404:
+ * description: Expense not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.post("/mark-whole-paid", expenseController.markWholeExpenseAsPaid);
 
 /**
  * @openapi

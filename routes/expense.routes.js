@@ -23,6 +23,20 @@ router.get("/", expenseController.getAllExpenses);
 
 /**
  * @openapi
+ * /expenses/history:
+ *   get:
+ *     summary: Retrieve expense history
+ *     description: Retrieve a list of expenses that have been paid.
+ *     responses:
+ *       200:
+ *         description: A list of paid expenses.
+ *       500:
+ *         description: Internal server error.
+ */
+router.get('/history', expenseController.getExpensesHistory);
+
+/**
+ * @openapi
  * /expenses/{id}:
  *   get:
  *     summary: Retrieve an expense by ID
@@ -265,6 +279,30 @@ router.post("/mark-paid", expenseController.markExpenseAsPaidByUser);
  * description: Internal server error.
  */
 router.post("/mark-whole-paid", expenseController.markWholeExpenseAsPaid);
+
+/**
+ * @openapi
+ * /expenses/mark-balance-as-paid:
+ *  patch:
+ *  summary: Mark the balance as paid
+ * description: Mark the balance of an expense as paid by the payer.
+ * parameters:
+ * - in: path
+ * name: expenseId
+ * required: true
+ *  
+ * schema:
+ * type: string
+ * description: ID of the expense.
+ * responses:
+ * 200:
+ * description: Balance marked as paid successfully.
+ * 404:
+ * description: Expense not found.
+ * 500:
+ * description: Internal server error.
+ */
+router.patch('/mark-balance-as-paid', expenseController.markBalanceAsPaid);
 
 /**
  * @openapi

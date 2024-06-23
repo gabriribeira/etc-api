@@ -37,6 +37,39 @@ exports.getAllExpenses = async (req, res) => {
   }
 };
 
+exports.getExpensesHistory = async (req, res) => {
+  const userId = req.session.passport.user;
+  try {
+    const expenses = await Expense.findAll({
+      where: {
+        is_paid: true,
+        [Op.or]: [
+          { user_id: userId },
+          { '$users.id$': userId }
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: 'payer',
+          attributes: ['id', 'name', 'img_url']
+        },
+        {
+          model: User,
+          as: 'users',
+          through: {
+            attributes: ['is_paid'],
+          },
+          attributes: ['id', 'name', 'img_url']
+        }
+      ]
+    });
+
+    res.status(200).json(jsend.success(expenses));
+  } catch (error) {
+    res.status(500).json(jsend.fail(error.message));
+  }
+};
 
 // Controller function to get a single expense by ID
 exports.getExpenseById = async (req, res) => {
@@ -151,6 +184,29 @@ exports.getExpenseUsers = async (req, res) => {
     }
     const users = expense.Users;
     res.status(200).json(jsend(users));
+  } catch (error) {
+    res.status(500).json(jsend.fail(error.message));
+  }
+};
+
+exports.markBalanceAsPaid = async (req, res) => {
+  const { expenseIds } = req.body;
+
+  try {
+    const updatedExpenses = await Expense.update(
+      { is_paid: true },
+      {
+        where: {
+          id: expenseIds
+        }
+      }
+    );
+
+    if (updatedExpenses[0] === 0) {
+      return res.status(404).json(jsend.fail("No expenses found to update"));
+    }
+
+    res.status(200).json(jsend.success({ message: "Expenses marked as paid" }));
   } catch (error) {
     res.status(500).json(jsend.fail(error.message));
   }

@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
   class Expense extends Model {
     static associate(models) {
       Expense.belongsTo(models.User, {
-        foreignKey: 'user_id'
+        foreignKey: 'user_id',
+        as: 'payer',
       });
       Expense.belongsTo(models.Household, {
         foreignKey: 'household_id'
@@ -13,8 +14,8 @@ module.exports = (sequelize, DataTypes) => {
         through: 'Expense_User',
         as: 'users',
         foreignKey: 'expense_id',
+        onDelete: 'CASCADE',
       });
-      
     }
   }
   Expense.init({

@@ -18,7 +18,7 @@ module.exports = {
       household_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: { model: 'households', key: 'id' }
+        references: { model: 'households', key: 'id' },
       },
       title: {
         allowNull: false,

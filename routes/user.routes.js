@@ -90,6 +90,20 @@ router.get("/search", userController.searchUsers);
 
 /**
  * @openapi
+ * /users/all-households:
+ *  post:
+ *  summary: Get users from all households
+ * description: Retrieve a list of users from all households.
+ * responses:
+ * 200:
+ * description: A list of users from all households.
+ * 500:
+ * description: Internal server error.
+ */
+router.get('/all-households', userController.getUsersFromAllHouseholds);
+
+/**
+ * @openapi
  * /users/{id}:
  *   get:
  *     summary: Retrieve a user by ID

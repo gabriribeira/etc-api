@@ -24,6 +24,59 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.getUsersFromAllHouseholds = async (req, res) => {
+  const userId = req.session.passport.user;
+  console.log("Authenticated user ID:", userId);
+
+  if (!userId) {
+    return res.status(400).json(jsend.error("User ID not found in session"));
+  }
+
+  try {
+    // Fetch all households the authenticated user belongs to
+    const userHouseholds = await User_Household.findAll({
+      where: { user_id: userId },
+      include: {
+        model: Household,
+        attributes: ['id'],
+        include: {
+          model: User,
+          attributes: ["id", "name", "img_url"],
+        }
+      },
+    });
+
+    if (userHouseholds.length === 0) {
+      return res.status(404).json(jsend.error("No households found for the authenticated user"));
+    }
+
+    // Extract users from households
+    const users = new Set();
+    userHouseholds.forEach(userHousehold => {
+      userHousehold.Household.Users.forEach(user => {
+        users.add(JSON.stringify({ id: user.id, name: user.name, img_url: user.img_url }));
+      });
+    });
+
+    // Convert the set to an array
+    const usersArray = Array.from(users).map(user => JSON.parse(user));
+
+    // Ensure the authenticated user is included in the list
+    const authenticatedUser = usersArray.find(user => user.id === userId);
+    if (!authenticatedUser) {
+      const user = await User.findByPk(userId, {
+        attributes: ["id", "name", "img_url"],
+      });
+      usersArray.push(user);
+    }
+
+    res.status(200).json(jsend.success(usersArray));
+  } catch (error) {
+    console.error('Error fetching users from all households:', error);
+    res.status(500).json(jsend.error('Error fetching users from all households'));
+  }
+};
+
 // Controller function to get a single user by ID
 exports.getUserById = async (req, res) => {
   const { id } = req.params;
@@ -120,7 +173,6 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// Controller function to add specifications for a user
 // Controller function to add specifications for a user
 exports.addUserSpecifications = async (req, res) => {
   const userId = req.session.passport.user;
